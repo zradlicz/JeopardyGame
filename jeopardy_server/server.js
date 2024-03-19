@@ -1,0 +1,77 @@
+const WebSocket = require("ws");
+const wss = new WebSocket.Server({ port: 5000 });
+
+let users = [];
+let buzzerUser = null;
+let currentQuestion = 0;
+
+const triviaQuestions = [
+  { question: "What is the capital of France?", answer: "Paris" },
+  { question: "Who painted the Mona Lisa?", answer: "Leonardo da Vinci" },
+  // Add more questions as needed
+];
+
+function sendQuestionToAll() {
+  const randomIndex = Math.floor(Math.random() * triviaQuestions.length);
+  const question = triviaQuestions[randomIndex].question;
+  currentQuestion = randomIndex;
+  wss.clients.forEach(client => {
+    client.send(`Question: ${question}`);
+  });
+}
+
+wss.on("connection", ws => {
+  ws.id = Date.now().toString(); // Assign a unique ID to each WebSocket connection
+  wss.clients.forEach(client => {
+    client.send(`Welcome to Jeopardy!`);
+  });
+  ws.on("message", message => {
+    
+    const parts = message.toString().split(' ');
+    const messageType = parts[0];
+    const messageContent = parts.slice(1).join(' ');
+    wss.clients.forEach(client => {
+        client.send(messageType.toString());
+      });
+
+    if (messageType === "/name") {
+        
+      const userName = messageContent;
+      users.push({ id: ws.id, name: userName });
+      ws.send(`Welcome, ${userName}! You are now connected.`);
+    } else if (messageType === "/buzz") {
+      if (!buzzerUser) {
+        buzzerUser = users.find(user => user.id === ws.id);
+        wss.clients.forEach(client => {
+          client.send(`${buzzerUser.name} has buzzed in!`);
+        });
+      }
+    } else if (messageType === "/answer") {
+      const userAnswer = messageContent;
+      ws.send(`${buzzerUser.name} answered: ${messageContent}`);
+      if (buzzerUser) {
+        const correctAnswer = triviaQuestions[currentQuestion].answer;
+        if (userAnswer.toLowerCase() === correctAnswer.toLowerCase()) {
+          wss.clients.forEach(client => {
+            client.send(`${buzzerUser.name} answered correctly!`);
+          });
+        } else {
+          wss.clients.forEach(client => {
+            client.send(`${buzzerUser.name} answered incorrectly!`);
+          });
+        }
+        buzzerUser = null;
+      }
+    }
+  });
+
+  ws.on("close", () => {
+    users = users.filter(user => user.id !== ws.id);
+  });
+});
+
+setInterval(() => {
+  if (users.length > 0 && !buzzerUser) {
+    sendQuestionToAll();
+  }
+}, 5000); // Change the interval as needed
