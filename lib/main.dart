@@ -1,6 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:web_socket_channel/web_socket_channel.dart';
+import 'GamePage.dart';
+import 'LandingPage.dart';
+import 'StartPage.dart';
 void main() => runApp(const MyApp());
+
+Player player = Player();
+Game game = Game();
 
 class MyApp extends StatelessWidget {
   const MyApp({Key? key}) : super(key: key);
@@ -10,102 +15,67 @@ class MyApp extends StatelessWidget {
     const title = 'Jeopardy Trivia Game';
     return MaterialApp(
       title: title,
-      home: MyHomePage(
-        title: title,
-      ),
+      initialRoute: '/',
+      routes: {
+        '/': (context) => LandingPage(),
+        '/start': (context) => StartPage(playerNames: game.getPlayerNames()),
+        '/game': (context) => GamePage(),
+      }
     );
   }
 }
 
-class MyHomePage extends StatefulWidget {
-  const MyHomePage({
-    Key? key,
-    required this.title,
-  }) : super(key: key);
+class Player
+{
+  String name = '';
+  int score = 0;
+  bool buzzStatus = false;
 
-  final String title;
+  String get playerName{
+    return name;
+  }
 
-  @override
-  State<MyHomePage> createState() => _MyHomePageState();
-}
+  set playerName(String name){
+    this.name = name;
+  }
 
-class _MyHomePageState extends State<MyHomePage> {
-  final TextEditingController _nameController = TextEditingController();
-  final TextEditingController _answerController = TextEditingController();
-  final _channel = WebSocketChannel.connect(
-    Uri.parse('ws://127.0.0.1:5000'), //use ws://10.0.2.2:5000 for andriod studio
-  );
+  void incrementScore(){
+    score++;
+  }
 
-  void _joinGame() {
-  final userName = _nameController.text;
-  if (userName.isNotEmpty) {
-    _channel.sink.add('/name $userName');
+  void deccrementScore(){
+    score--;
+  }
+
+  bool buzzActive(){
+    return buzzStatus;
+  }
+
+  void buzzActivate(){
+    buzzStatus = true;
+  }
+
+  void buzzDisactivate(){
+    buzzStatus = false;
   }
 }
 
-  void _buzzIn() {
-    // Send '/buzz' to the server
-    _channel.sink.add('/buzz');
+class Game {
+  List<Player> players = [];
+
+  void addPlayer(Player player) {
+    players.add(player);
   }
 
-  void _submitAnswer() {
-  final userAnswer = _answerController.text;
-  if (userAnswer.isNotEmpty) {
-    _channel.sink.add('/answer $userAnswer');
-  }
-}
-
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(widget.title),
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(20),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            TextFormField(
-              controller: _nameController,
-              decoration: const InputDecoration(labelText: 'Enter your name'),
-            ),
-            ElevatedButton(
-              onPressed: _joinGame,
-              child: const Text('Join Game'),
-            ),
-            const SizedBox(height: 24),
-            ElevatedButton(
-              onPressed: _buzzIn,
-              child: const Text('Buzz In'),
-            ),
-            TextFormField(
-              controller: _answerController,
-              decoration: const InputDecoration(labelText: 'Enter your answer'),
-            ),
-            ElevatedButton(
-              onPressed: _submitAnswer,
-              child: const Text('Submit Answer'),
-            ),
-            const SizedBox(height: 24),
-            StreamBuilder(
-              stream: _channel.stream,
-              builder: (context, snapshot) {
-                return Text(snapshot.hasData ? '${snapshot.data}' : '');
-              },
-            )
-          ],
-        ),
-      ),
-    );
+  void removePlayer(Player player) {
+    players.removeWhere((p) => p.name == player.name);
   }
 
-  @override
-  void dispose() {
-    _channel.sink.close();
-    _answerController.dispose();
-    _nameController.dispose();
-    super.dispose();
+  List<String> getPlayerNames() {
+    List<String> names = [];
+    for (Player player in players) {
+      names.add(player.name);
+    }
+    return names;
   }
 }
