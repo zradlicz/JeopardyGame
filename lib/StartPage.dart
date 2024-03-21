@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:web_socket_channel/web_socket_channel.dart';
+import 'main.dart';
 
 class StartPage extends StatefulWidget {
   final List<String> playerNames;
@@ -11,9 +11,6 @@ class StartPage extends StatefulWidget {
 }
 
 class _StartPageState extends State<StartPage> {
-  final _channel = WebSocketChannel.connect(
-    Uri.parse('ws://127.0.0.1:5000'),
-  );
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -47,12 +44,6 @@ class _StartPageState extends State<StartPage> {
                 },
               ),
             ),
-            StreamBuilder(
-                stream: _channel.stream,
-                builder: (context, snapshot) {
-                  return Text(snapshot.hasData ? '${snapshot.data}' : '');
-                },
-              ),
           ],
         ),
       ),
@@ -61,6 +52,6 @@ class _StartPageState extends State<StartPage> {
 
   void _startGame() {
     // Add logic to start the game, navigate to the game page, etc.
-    Navigator.pushNamed(context, '/game');
+    Navigator.pushNamed(context, '/question');
   }
 }

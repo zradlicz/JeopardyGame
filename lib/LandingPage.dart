@@ -31,6 +31,7 @@ class LandingPage extends StatelessWidget {
                 String playerName = _nameController.text.trim();
                 player.playerName = playerName;
                 game.addPlayer(player);
+                server.sendToServer('/name $playerName');
                 // Navigate to the game page
                 Navigator.pushNamed(context, '/start');
               },

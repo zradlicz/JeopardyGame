@@ -1,11 +1,16 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
-import 'GamePage.dart';
+import 'QuestionPage.dart';
 import 'LandingPage.dart';
 import 'StartPage.dart';
+import 'package:web_socket_channel/web_socket_channel.dart';
+import 'package:async/async.dart';
 void main() => runApp(const MyApp());
 
 Player player = Player();
 Game game = Game();
+Server server = Server();
 
 class MyApp extends StatelessWidget {
   const MyApp({Key? key}) : super(key: key);
@@ -19,7 +24,7 @@ class MyApp extends StatelessWidget {
       routes: {
         '/': (context) => LandingPage(),
         '/start': (context) => StartPage(playerNames: game.getPlayerNames()),
-        '/game': (context) => GamePage(),
+        '/question': (context) => QuestionPage(),
       }
     );
   }
@@ -79,3 +84,33 @@ class Game {
     return names;
   }
 }
+
+class Server {
+  late WebSocketChannel channel;
+  late String messageFromServer;
+
+  Server() {
+    channel = WebSocketChannel.connect(
+      Uri.parse('ws://127.0.0.1:5000'),
+    );
+    channel.stream.listen((message){
+    messageFromServer = message;
+    handleMessage(message);
+  });
+  }
+
+  String get currentMessageFromServer{
+    return messageFromServer;
+  }
+
+  void handleMessage(message){
+  }
+
+  void sendToServer(String message) {
+    channel.sink.add(message);
+  }
+
+  void dispose() {
+    channel.sink.close();
+  } 
+} 

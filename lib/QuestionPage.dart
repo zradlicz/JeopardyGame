@@ -1,19 +1,16 @@
 import 'package:flutter/material.dart';
-import 'package:web_socket_channel/web_socket_channel.dart';
+import 'main.dart';
 
-class GamePage extends StatefulWidget {
-  const GamePage({Key? key}) : super(key: key);
+class QuestionPage extends StatefulWidget {
+  const QuestionPage({Key? key}) : super(key: key);
 
   @override
-  _GamePageState createState() => _GamePageState();
+  _QuestionPageState createState() => _QuestionPageState();
 }
 
-class _GamePageState extends State<GamePage> {
+class _QuestionPageState extends State<QuestionPage> {
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _answerController = TextEditingController();
-  final _channel = WebSocketChannel.connect(
-    Uri.parse('ws://127.0.0.1:5000'),
-  );
 
   @override
   Widget build(BuildContext context) {
@@ -50,12 +47,6 @@ class _GamePageState extends State<GamePage> {
                 ),
               ),
               SizedBox(height: 24),
-              StreamBuilder(
-                stream: _channel.stream,
-                builder: (context, snapshot) {
-                  return Text(snapshot.hasData ? '${snapshot.data}' : '');
-                },
-              ),
             ],
           ),
         ),
@@ -63,27 +54,20 @@ class _GamePageState extends State<GamePage> {
     );
   }
 
-  void _joinGame() {
-    final userName = _nameController.text;
-    if (userName.isNotEmpty) {
-      _channel.sink.add('/name $userName');
-    }
-  }
-
   void _buzzIn() {
-    _channel.sink.add('/buzz');
+    server.sendToServer('/buzz');
   }
 
   void _submitAnswer() {
     final userAnswer = _answerController.text;
     if (userAnswer.isNotEmpty) {
-      _channel.sink.add('/answer $userAnswer');
+      server.sendToServer('/answer $userAnswer');
     }
   }
 
   @override
   void dispose() {
-    _channel.sink.close();
+    server.channel.sink.close();
     _answerController.dispose();
     _nameController.dispose();
     super.dispose();
