@@ -15,6 +15,7 @@ function sendQuestionToAll() {
   const randomIndex = Math.floor(Math.random() * triviaQuestions.length);
   const question = triviaQuestions[randomIndex].question;
   currentQuestion = randomIndex;
+  console.log("Sending question to all clients:", question);
   wss.clients.forEach(client => {
     client.send(`Question: ${question}`);
   });
@@ -22,20 +23,24 @@ function sendQuestionToAll() {
 
 wss.on("connection", ws => {
   ws.id = Date.now().toString(); // Assign a unique ID to each WebSocket connection
+  console.log("New client connected:", ws.id);
   wss.clients.forEach(client => {
     client.send(`Welcome to Jeopardy!`);
   });
   ws.on("message", message => {
+    console.log("Received message from client:", message);
     
     const parts = message.toString().split(' ');
     const messageType = parts[0];
     const messageContent = parts.slice(1).join(' ');
+    console.log("Message type:", messageType);
+    console.log("Message content:", messageContent);
+
     wss.clients.forEach(client => {
-        client.send(messageType.toString());
-      });
+      client.send(messageType.toString());
+    });
 
     if (messageType === "/name") {
-        
       const userName = messageContent;
       users.push({ id: ws.id, name: userName });
       ws.send(`Welcome, ${userName}! You are now connected.`);
@@ -67,11 +72,14 @@ wss.on("connection", ws => {
 
   ws.on("close", () => {
     users = users.filter(user => user.id !== ws.id);
+    console.log("Client disconnected:", ws.id);
   });
 });
 
 setInterval(() => {
   if (users.length > 0 && !buzzerUser) {
     sendQuestionToAll();
+  } else {
+    console.log("Waiting for connections...");
   }
 }, 5000); // Change the interval as needed

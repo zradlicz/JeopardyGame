@@ -1,11 +1,9 @@
-import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'QuestionPage.dart';
 import 'LandingPage.dart';
 import 'StartPage.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
-import 'package:async/async.dart';
+
 void main() => runApp(const MyApp());
 
 Player player = Player();
@@ -91,7 +89,7 @@ class Server {
 
   Server() {
     channel = WebSocketChannel.connect(
-      Uri.parse('ws://127.0.0.1:5000'),
+      Uri.parse('wss://endless-lemming-only.ngrok-free.app'),
     );
     channel.stream.listen((message){
     messageFromServer = message;
