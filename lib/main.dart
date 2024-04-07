@@ -28,37 +28,56 @@ class MyApp extends StatelessWidget {
   }
 }
 
-class Player
-{
-  String name = '';
-  int score = 0;
-  bool buzzStatus = false;
+class Player {
+  String name;
+  int score;
+  bool buzzStatus;
 
-  String get playerName{
+  Player({this.name = '', this.score = 0, this.buzzStatus = false});
+
+  // Convert Player object to JSON format
+  Map<String, dynamic> toJson() {
+    return {
+      'name': name,
+      'score': score,
+      'buzzStatus': buzzStatus,
+    };
+  }
+
+  // Create Player object from JSON map
+  static Player fromJson(Map<String, dynamic> json) {
+    return Player(
+      name: json['name'] ?? '', // Default value in case 'name' is null
+      score: json['score'] ?? 0, // Default value in case 'score' is null
+      buzzStatus: json['buzzStatus'] ?? false, // Default value in case 'buzzStatus' is null
+    );
+  }
+
+  String get playerName {
     return name;
   }
 
-  set playerName(String name){
+  set playerName(String name) {
     this.name = name;
   }
 
-  void incrementScore(){
+  void incrementScore() {
     score++;
   }
 
-  void deccrementScore(){
+  void decrementScore() {
     score--;
   }
 
-  bool buzzActive(){
+  bool buzzActive() {
     return buzzStatus;
   }
 
-  void buzzActivate(){
+  void buzzActivate() {
     buzzStatus = true;
   }
 
-  void buzzDisactivate(){
+  void buzzDeactivate() {
     buzzStatus = false;
   }
 }
@@ -81,6 +100,19 @@ class Game {
     }
     return names;
   }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'players': players.map((player) => player.toJson()).toList(),
+    };
+  }
+
+  static Game fromJson(Map<String, dynamic> json) {
+    Game game = Game();
+    List<dynamic> playersJson = json['players'];
+    game.players = playersJson.map((playerJson) => Player.fromJson(playerJson)).toList();
+    return game;
+  }
 }
 
 class Server {
@@ -89,7 +121,8 @@ class Server {
 
   Server() {
     channel = WebSocketChannel.connect(
-      Uri.parse('wss://endless-lemming-only.ngrok-free.app'),
+      //Uri.parse('wss://endless-lemming-only.ngrok-free.app'), //use for rpi server
+      Uri.parse('ws://localhost:5000'), //use for dev server
     );
     channel.stream.listen((message){
     messageFromServer = message;

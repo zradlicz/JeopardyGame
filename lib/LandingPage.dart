@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'main.dart';
+import 'dart:convert';
 
 class LandingPage extends StatelessWidget {
   final TextEditingController _nameController = TextEditingController();
@@ -30,8 +31,8 @@ class LandingPage extends StatelessWidget {
               onPressed: () {
                 String playerName = _nameController.text.trim();
                 player.playerName = playerName;
-                game.addPlayer(player);
-                server.sendToServer('/name $playerName');
+                String playerJSON = json.encode(player.toJson());
+                server.sendToServer(playerJSON);
                 // Navigate to the game page
                 Navigator.pushNamed(context, '/start');
               },
