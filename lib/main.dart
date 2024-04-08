@@ -3,6 +3,7 @@ import 'QuestionPage.dart';
 import 'LandingPage.dart';
 import 'StartPage.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
+import 'dart:convert';
 
 void main() => runApp(const MyApp());
 
@@ -21,7 +22,7 @@ class MyApp extends StatelessWidget {
       initialRoute: '/',
       routes: {
         '/': (context) => LandingPage(),
-        '/start': (context) => StartPage(playerNames: game.getPlayerNames()),
+        '/start': (context) => StartPage(),
         '/question': (context) => QuestionPage(),
       }
     );
@@ -84,6 +85,11 @@ class Player {
 
 class Game {
   List<Player> players = [];
+  String currentPage = '';
+
+  set setCurrentPage(String page){
+    this.currentPage = page;
+  }
 
   void addPlayer(Player player) {
     players.add(player);
@@ -107,7 +113,7 @@ class Game {
     };
   }
 
-  static Game fromJson(Map<String, dynamic> json) {
+  static Game fromJSON(Map<String, dynamic> json) {
     Game game = Game();
     List<dynamic> playersJson = json['players'];
     game.players = playersJson.map((playerJson) => Player.fromJson(playerJson)).toList();
@@ -115,9 +121,12 @@ class Game {
   }
 }
 
+
+
 class Server {
   late WebSocketChannel channel;
   late String messageFromServer;
+  late bool reconnectNeeded = false;
 
   Server() {
     channel = WebSocketChannel.connect(
@@ -130,12 +139,28 @@ class Server {
   });
   }
 
+  void reconnect(){
+    channel = WebSocketChannel.connect(
+      //Uri.parse('wss://endless-lemming-only.ngrok-free.app'), //use for rpi server
+      Uri.parse('ws://localhost:5000'), //use for dev server
+    );
+    reconnectNeeded = false;
+  }
+
   String get currentMessageFromServer{
     return messageFromServer;
   }
 
   void handleMessage(message){
+  print('Received message: $message'); // Print the received message
+  var jsonData = json.decode(message);
+  print('Decoded JSON data: $jsonData');
+  
+  game = Game.fromJSON(jsonData);
+  print(game.getPlayerNames());
+  
   }
+
 
   void sendToServer(String message) {
     channel.sink.add(message);
@@ -143,5 +168,6 @@ class Server {
 
   void dispose() {
     channel.sink.close();
+    reconnectNeeded = true;
   } 
 } 

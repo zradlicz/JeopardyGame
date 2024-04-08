@@ -15,19 +15,27 @@ let game = new Game();
 game.setRandomQuestion(triviaQuestions);
 
 wss.on("connection", ws => {
-  ws.id = Date.now().toString(); // Assign a unique ID to each WebSocket connection
-  console.log("New client connected:", ws.id);
-
-  // Notify all clients about the new player
-  wss.clients.forEach(client => {
-    if (client.readyState === WebSocket.OPEN) {
-      console.log("Sending game state to clients:", game.toJSON());
-      client.send(game.toJSON().toString());
-    }
-  });
+  
+  handlePlayerConnection(ws);
 
   ws.on("message", message => {
-    console.log("Received message from client:", message.toString());
+    handleIncomingClientMessage(message)
+  });
+
+  ws.on("close", () => {
+    handlePlayerDisconnection()
+  })
+});
+
+function handlePlayerConnection(ws)
+{
+  ws.id = Date.now().toString(); // Assign a unique ID to each WebSocket connection
+  console.log("New client connected:", ws.id);
+}
+
+function handleIncomingClientMessage(message)
+{
+  console.log("Received message from client:", message.toString());
     let data;
     try {
       data = JSON.parse(message);
@@ -35,15 +43,33 @@ wss.on("connection", ws => {
       console.error("Error parsing JSON:", error);
       return; // Skip processing if the message is not valid JSON
     }
+    
+
     player = Player.fromJSON(data);
     player.playerName = data.name;
     game.addPlayer(player);
     console.log("Added player:", player.playerName);
     console.log("Current game:", game)
+    wss.clients.forEach(client => {
+      if (client.readyState === WebSocket.OPEN) {
+        console.log("Sending game state to clients:", game.toJSON());
+        client.send(JSON.stringify(game.toJSON()));
+      }
+    });
+}
+
+function handlePlayerDisconnection()
+{
+  game.removePlayer(player.playerName)
+  console.log("Removed player:", player.playerName);
+  console.log("Current game:", game)
+  wss.clients.forEach(client => {
+    if (client.readyState === WebSocket.OPEN) {
+      console.log("Sending game state to clients:", game.toJSON());
+      client.send(JSON.stringify(game.toJSON()));
+    }
   });
-});
-
-
+}
 
 
 // wss.on("connection", ws => {

@@ -29,12 +29,15 @@ class LandingPage extends StatelessWidget {
             SizedBox(height: 20),
             ElevatedButton(
               onPressed: () {
+                if(server.reconnectNeeded){server.reconnect();}
                 String playerName = _nameController.text.trim();
                 player.playerName = playerName;
                 String playerJSON = json.encode(player.toJson());
+                print(playerJSON);
+                Navigator.pushNamed(context, '/start');
                 server.sendToServer(playerJSON);
                 // Navigate to the game page
-                Navigator.pushNamed(context, '/start');
+                
               },
               child: Text('Join Game'),
             ),

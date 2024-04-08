@@ -2,9 +2,8 @@ import 'package:flutter/material.dart';
 import 'main.dart';
 
 class StartPage extends StatefulWidget {
-  final List<String> playerNames;
 
-  const StartPage({Key? key, required this.playerNames}) : super(key: key);
+  const StartPage({Key? key}) : super(key: key);
 
   @override
   _StartPageState createState() => _StartPageState();
@@ -15,7 +14,13 @@ class _StartPageState extends State<StartPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Jeopardy Trivia Game'),
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back),
+          onPressed: () {
+            server.dispose();
+            Navigator.pop(context); // Navigate back to the previous screen
+          },
+        ),
       ),
       body: Center(
         child: Column(
@@ -36,10 +41,10 @@ class _StartPageState extends State<StartPage> {
             SizedBox(height: 10),
             Expanded(
               child: ListView.builder(
-                itemCount: widget.playerNames.length,
+                itemCount: game.getPlayerNames().length,
                 itemBuilder: (context, index) {
                   return ListTile(
-                    title: Text(widget.playerNames[index]),
+                    title: Text(game.getPlayerNames()[index]),
                   );
                 },
               ),
