@@ -8,8 +8,8 @@ class Game {
       this.players.push(player);
     }
   
-    removePlayer(playerName) {
-      this.players = this.players.filter(player => player.name !== playerName);
+    removePlayer(id) {
+      this.players = this.players.filter(player => player.id !== id);
     }
   
     getPlayerNames() {

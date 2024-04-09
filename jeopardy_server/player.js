@@ -1,6 +1,7 @@
 class Player {
     constructor() {
       this.name = '';
+      this.id = '';
       this.score = 0;
       this.buzzStatus = false;
     }

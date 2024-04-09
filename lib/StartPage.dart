@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'dart:async'; // Import dart:async for Timer
 import 'main.dart';
 
 class StartPage extends StatefulWidget {
@@ -10,6 +11,15 @@ class StartPage extends StatefulWidget {
 }
 
 class _StartPageState extends State<StartPage> {
+  List<String> playerList = [];
+  late Timer updatePlayersTimer;
+
+  @override
+  void initState() {
+    super.initState();
+    startPlayerListUpdate();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -41,10 +51,10 @@ class _StartPageState extends State<StartPage> {
             SizedBox(height: 10),
             Expanded(
               child: ListView.builder(
-                itemCount: game.getPlayerNames().length,
+                itemCount: playerList.length,
                 itemBuilder: (context, index) {
                   return ListTile(
-                    title: Text(game.getPlayerNames()[index]),
+                    title: Text(playerList[index]),
                   );
                 },
               ),
@@ -58,5 +68,24 @@ class _StartPageState extends State<StartPage> {
   void _startGame() {
     // Add logic to start the game, navigate to the game page, etc.
     Navigator.pushNamed(context, '/question');
+  }
+  
+  void startPlayerListUpdate() {
+    // Start a timer to update playerList every 2 seconds
+    updatePlayersTimer = Timer.periodic(Duration(milliseconds: 100), (timer) {
+      updatePlayerList(); // Update playerList continuously
+    });
+  }
+
+  void updatePlayerList() {
+    setState(() {
+      playerList = game.getPlayerNames();
+    });
+  }
+
+  @override
+  void dispose() {
+    updatePlayersTimer.cancel(); // Cancel the timer in the dispose method
+    super.dispose();
   }
 }

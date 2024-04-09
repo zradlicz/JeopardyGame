@@ -86,6 +86,7 @@ class Player {
 class Game {
   List<Player> players = [];
   String currentPage = '';
+  String currentQuestion = '';
 
   set setCurrentPage(String page){
     this.currentPage = page;
@@ -144,6 +145,10 @@ class Server {
       //Uri.parse('wss://endless-lemming-only.ngrok-free.app'), //use for rpi server
       Uri.parse('ws://localhost:5000'), //use for dev server
     );
+    channel.stream.listen((message){
+    messageFromServer = message;
+    handleMessage(message);
+    });
     reconnectNeeded = false;
   }
 

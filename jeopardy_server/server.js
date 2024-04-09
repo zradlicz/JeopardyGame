@@ -19,11 +19,11 @@ wss.on("connection", ws => {
   handlePlayerConnection(ws);
 
   ws.on("message", message => {
-    handleIncomingClientMessage(message)
+    handleIncomingClientMessage(ws, message)
   });
 
   ws.on("close", () => {
-    handlePlayerDisconnection()
+    handlePlayerDisconnection(ws)
   })
 });
 
@@ -33,7 +33,7 @@ function handlePlayerConnection(ws)
   console.log("New client connected:", ws.id);
 }
 
-function handleIncomingClientMessage(message)
+function handleIncomingClientMessage(ws, message)
 {
   console.log("Received message from client:", message.toString());
     let data;
@@ -47,8 +47,9 @@ function handleIncomingClientMessage(message)
 
     player = Player.fromJSON(data);
     player.playerName = data.name;
+    player.id = ws.id;
     game.addPlayer(player);
-    console.log("Added player:", player.playerName);
+    console.log("Added player:", player.playerName, player.id);
     console.log("Current game:", game)
     wss.clients.forEach(client => {
       if (client.readyState === WebSocket.OPEN) {
@@ -58,9 +59,14 @@ function handleIncomingClientMessage(message)
     });
 }
 
-function handlePlayerDisconnection()
+function handlePlayerDisconnection(ws)
 {
-  game.removePlayer(player.playerName)
+  game.players.forEach(currentPlayer => {
+    if(currentPlayer.id === ws.id){
+      player = currentPlayer;
+    }
+  })
+  game.removePlayer(player.id)
   console.log("Removed player:", player.playerName);
   console.log("Current game:", game)
   wss.clients.forEach(client => {
