@@ -43,20 +43,38 @@ function handleIncomingClientMessage(ws, message)
       console.error("Error parsing JSON:", error);
       return; // Skip processing if the message is not valid JSON
     }
-    
-
-    player = Player.fromJSON(data);
-    player.playerName = data.name;
-    player.id = ws.id;
-    game.addPlayer(player);
-    console.log("Added player:", player.playerName, player.id);
-    console.log("Current game:", game)
-    wss.clients.forEach(client => {
-      if (client.readyState === WebSocket.OPEN) {
-        console.log("Sending game state to clients:", game.toJSON());
-        client.send(JSON.stringify(game.toJSON()));
+    addPlayerFlag = true;
+    game.players.forEach(currentPlayer => {
+      if(currentPlayer.id === ws.id){
+        addPlayerFlag = false;
       }
-    });
+    })
+    
+    if(addPlayerFlag){
+      player = Player.fromJSON(data);
+      player.playerName = data.name;
+      player.id = ws.id;
+      game.addPlayer(player);
+      console.log("Added player:", player.playerName, player.id);
+      console.log("Current game:", game)
+      wss.clients.forEach(client => {
+        if (client.readyState === WebSocket.OPEN) {
+          console.log("Sending game state to clients:", game.toJSON());
+          client.send(JSON.stringify(game.toJSON()));
+        }
+      });
+    }
+    else{
+      game.players.forEach(currentPlayer => {
+        currentPlayer.currentPage = data.currentPage;
+      });
+      wss.clients.forEach(client => {
+        if (client.readyState === WebSocket.OPEN) {
+          console.log("Sending game state to clients:", game.toJSON());
+          client.send(JSON.stringify(game.toJSON()));
+        }
+      });
+    }
 }
 
 function handlePlayerDisconnection(ws)

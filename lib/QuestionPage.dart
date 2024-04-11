@@ -17,9 +17,12 @@ class _QuestionPageState extends State<QuestionPage> {
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
-          icon: Icon(Icons.arrow_back),
+          icon: Icon(Icons.home_filled),
           onPressed: () {
             Navigator.pop(context); // Navigate back to the previous screen
+            Navigator.pop(context);
+            player.currentPage = 'landing';
+            server.dispose();
           },
         ),
       ),
@@ -75,7 +78,6 @@ class _QuestionPageState extends State<QuestionPage> {
 
   @override
   void dispose() {
-    server.channel.sink.close();
     _answerController.dispose();
     _nameController.dispose();
     super.dispose();

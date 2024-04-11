@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'dart:async'; // Import dart:async for Timer
+import 'dart:convert';
 import 'main.dart';
 
 class StartPage extends StatefulWidget {
@@ -25,7 +26,7 @@ class _StartPageState extends State<StartPage> {
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
-          icon: Icon(Icons.arrow_back),
+          icon: Icon(Icons.home_filled),
           onPressed: () {
             server.dispose();
             Navigator.pop(context); // Navigate back to the previous screen
@@ -68,12 +69,21 @@ class _StartPageState extends State<StartPage> {
   void _startGame() {
     // Add logic to start the game, navigate to the game page, etc.
     Navigator.pushNamed(context, '/question');
+    dispose();
+    player.currentPage = 'question';
+    String playerJSON = json.encode(player.toJson());
+    server.sendToServer(playerJSON);
+    print("Sending game page update");
   }
   
   void startPlayerListUpdate() {
     // Start a timer to update playerList every 2 seconds
     updatePlayersTimer = Timer.periodic(Duration(milliseconds: 100), (timer) {
       updatePlayerList(); // Update playerList continuously
+      if(player.currentPage == 'question'){
+        Navigator.pushNamed(context, '/question');
+        dispose();
+      }
     });
   }
 

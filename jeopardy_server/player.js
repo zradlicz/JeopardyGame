@@ -2,6 +2,7 @@ class Player {
     constructor() {
       this.name = '';
       this.id = '';
+      this.currentPage = '';
       this.score = 0;
       this.buzzStatus = false;
     }
@@ -37,6 +38,8 @@ class Player {
     toJSON() {
       return {
         name: this.name,
+        id: this.id,
+        currentPage: this.currentPage,
         score: this.score,
         buzzStatus: this.buzzStatus
       };
@@ -45,6 +48,8 @@ class Player {
     static fromJSON(json) {
       const player = new Player();
       player.name = json.name;
+      player.id = json.id;
+      player.currentPage = json.currentPage;
       player.score = json.score;
       player.buzzStatus = json.buzzStatus;
       return player;

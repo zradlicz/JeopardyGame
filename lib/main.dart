@@ -31,15 +31,19 @@ class MyApp extends StatelessWidget {
 
 class Player {
   String name;
+  String id;
+  String currentPage;
   int score;
   bool buzzStatus;
 
-  Player({this.name = '', this.score = 0, this.buzzStatus = false});
+  Player({this.name = '', this.id = '', this.currentPage = 'start', this.score = 0, this.buzzStatus = false});
 
   // Convert Player object to JSON format
   Map<String, dynamic> toJson() {
     return {
       'name': name,
+      'id': id,
+      'currentPage': currentPage,
       'score': score,
       'buzzStatus': buzzStatus,
     };
@@ -49,6 +53,8 @@ class Player {
   static Player fromJson(Map<String, dynamic> json) {
     return Player(
       name: json['name'] ?? '', // Default value in case 'name' is null
+      id: json['id'] ?? '',
+      currentPage: json['currentPage'] ?? '',
       score: json['score'] ?? 0, // Default value in case 'score' is null
       buzzStatus: json['buzzStatus'] ?? false, // Default value in case 'buzzStatus' is null
     );
@@ -163,7 +169,9 @@ class Server {
   
   game = Game.fromJSON(jsonData);
   print(game.getPlayerNames());
-  
+  player = game.players.firstWhere((playerInGame) => playerInGame.name == player.name,
+  orElse: () => player,
+  );
   }
 
 
