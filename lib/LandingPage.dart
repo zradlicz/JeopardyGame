@@ -23,14 +23,6 @@ class LandingPage extends StatelessWidget {
                   color: Colors.white,
                 ),
               ),
-              SizedBox(height: 40),
-              Text(
-                'Enter your name to join the game',
-                style: TextStyle(
-                  fontSize: 18,
-                  color: Colors.white,
-                ),
-              ),
               SizedBox(height: 20),
               Container(
                 width: 300,

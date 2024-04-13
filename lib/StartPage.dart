@@ -33,42 +33,67 @@ class _StartPageState extends State<StartPage> {
           },
         ),
       ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            ElevatedButton(
-              onPressed: _startGame,
-              child: Text('Start Game', style: TextStyle(fontSize: 24)),
-              style: ButtonStyle(
-                backgroundColor: MaterialStateProperty.all<Color>(Colors.blue), // Button background color
-                padding: MaterialStateProperty.all<EdgeInsetsGeometry>(
-                  EdgeInsets.symmetric(horizontal: 40, vertical: 20),
-                ),
-                shape: MaterialStateProperty.all<OutlinedBorder>(
-                  RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(30), // Button border radius
+      body: Padding(
+        padding: const EdgeInsets.all(15.0),
+        child: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              ElevatedButton(
+                onPressed: _startGame,
+                child: Text('Start Game', style: TextStyle(fontSize: 24, color: Colors.white)),
+                style: ButtonStyle(
+                  backgroundColor: MaterialStateProperty.all<Color>(Colors.blue), // Button background color
+                  padding: MaterialStateProperty.all<EdgeInsetsGeometry>(
+                    EdgeInsets.symmetric(horizontal: 40, vertical: 20),
+                  ),
+                  shape: MaterialStateProperty.all<OutlinedBorder>(
+                    RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(30), // Button border radius
+                    ),
                   ),
                 ),
               ),
-            ),
-            SizedBox(height: 20),
-            Text(
-              'Players in the game:',
-              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.white), // Text color
-            ),
-            SizedBox(height: 10),
-            Expanded(
-              child: ListView.builder(
-                itemCount: playerList.length,
-                itemBuilder: (context, index) {
-                  return ListTile(
-                    title: Text(playerList[index], style: TextStyle(color: Colors.white)), // Text color
-                  );
-                },
+              SizedBox(height: 20),
+              Text(
+                'Players in the game:',
+                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.white), // Text color
               ),
-            ),
-          ],
+              SizedBox(height: 10),
+              Expanded(
+                child: SingleChildScrollView(
+                  child: Center(
+                    child: Column(
+                      children: playerList.map((playerName) {
+                        return Container(
+                          margin: EdgeInsets.symmetric(vertical: 5),
+                          constraints: BoxConstraints(maxWidth: 300),
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(20),
+                            color: Colors.blue[200], // Ovular card background color
+                          ),
+                          padding: EdgeInsets.all(10),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                playerName,
+                                style: TextStyle(color: Colors.black), // Ovular card text color
+                              ),
+                              Text(
+                                'Score: 0', // Initial score
+                                style: TextStyle(color: Colors.black), // Score text color
+                              ),
+                            ],
+                          ),
+                        );
+                      }).toList(),
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
