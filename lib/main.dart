@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'QuestionPage.dart';
 import 'LandingPage.dart';
 import 'StartPage.dart';
+import "AnswerPage.dart";
 import 'package:web_socket_channel/web_socket_channel.dart';
 import 'dart:convert';
 
@@ -24,6 +25,7 @@ class MyApp extends StatelessWidget {
         '/': (context) => LandingPage(),
         '/start': (context) => StartPage(),
         '/question': (context) => QuestionPage(),
+        '/answer': (context) => AnswerPage(),
       }
     );
   }
@@ -33,10 +35,11 @@ class Player {
   String name;
   String id;
   String currentPage;
+  String answer;
   int score;
   bool buzzStatus;
 
-  Player({this.name = '', this.id = '', this.currentPage = 'start', this.score = 0, this.buzzStatus = false});
+  Player({this.name = '', this.id = '', this.currentPage = 'start', this.answer = '', this.score = 0, this.buzzStatus = false});
 
   // Convert Player object to JSON format
   Map<String, dynamic> toJson() {
@@ -44,6 +47,7 @@ class Player {
       'name': name,
       'id': id,
       'currentPage': currentPage,
+      'answer': answer,
       'score': score,
       'buzzStatus': buzzStatus,
     };
@@ -55,6 +59,7 @@ class Player {
       name: json['name'] ?? '', // Default value in case 'name' is null
       id: json['id'] ?? '',
       currentPage: json['currentPage'] ?? '',
+      answer: json['answer'] ?? '',
       score: json['score'] ?? 0, // Default value in case 'score' is null
       buzzStatus: json['buzzStatus'] ?? false, // Default value in case 'buzzStatus' is null
     );
@@ -91,12 +96,8 @@ class Player {
 
 class Game {
   List<Player> players = [];
-  String currentPage = '';
   String currentQuestion = '';
 
-  set setCurrentPage(String page){
-    this.currentPage = page;
-  }
 
   void addPlayer(Player player) {
     players.add(player);
@@ -124,6 +125,7 @@ class Game {
     Game game = Game();
     List<dynamic> playersJson = json['players'];
     game.players = playersJson.map((playerJson) => Player.fromJson(playerJson)).toList();
+    game.currentQuestion = json['currentQuestion'];
     return game;
   }
 }

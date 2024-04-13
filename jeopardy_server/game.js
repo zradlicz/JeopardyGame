@@ -31,7 +31,8 @@ class Game {
   
     toJSON() {
       return {
-        players: this.players.map(player => player.toJSON())
+        players: this.players.map(player => player.toJSON()),
+        currentQuestion: this.currentQuestion.question
       };
     }
   
