@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'main.dart';
 import 'dart:convert';
+import 'dart:async'; // Import dart:async for Timer
 
 class AnswerPage extends StatefulWidget {
   const AnswerPage({Key? key}) : super(key: key);
@@ -12,17 +13,25 @@ class AnswerPage extends StatefulWidget {
 class _AnswerPageState extends State<AnswerPage> {
   final TextEditingController _answerController = TextEditingController();
   String question = game.currentQuestion;
+  late Timer updatePageTimer;
+
+  @override
+  void initState() {
+    startPageUpdate();
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.blueGrey[900], // Background color
       appBar: AppBar(
         leading: IconButton(
           icon: Icon(Icons.home_filled),
           onPressed: () {
-            Navigator.pop(context); // Navigate back to the previous screen
-            Navigator.pop(context);
-            Navigator.pop(context);
+            Navigator.of(context).popUntil((route) => route.isFirst); // Navigate back to the landing page
             player.currentPage = 'landing';
+            player.buzzStatus = false;
             server.dispose();
           },
         ),
@@ -34,25 +43,43 @@ class _AnswerPageState extends State<AnswerPage> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Text(
-                'Question:$question', // Add your text here
-                style: TextStyle(fontSize: 18),
-              ),
+                  question, // Add your text here
+                  style: TextStyle(
+                      fontSize: 32,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                    ),
+                  ),
               SizedBox(height: 20),
               TextFormField(
                 controller: _answerController,
                 decoration: InputDecoration(
                   labelText: 'Enter your answer',
+                  labelStyle: TextStyle(color: Colors.white),
                   border: OutlineInputBorder(),
+                  focusedBorder: OutlineInputBorder(
+                    borderSide: BorderSide(color: Colors.white), // Changed to white color
+                  ),
                 ),
+                style: TextStyle(color: Colors.white),
               ),
               SizedBox(height: 20),
               ElevatedButton(
-                onPressed: _submitAnswer,
-                child: Text('Submit Answer'),
-                style: ElevatedButton.styleFrom(
-                  padding: EdgeInsets.symmetric(horizontal: 30, vertical: 15), // Adjust padding as needed
-                ),
-              ),
+                      onPressed: _submitAnswer,
+                      style: ButtonStyle(
+                        backgroundColor: MaterialStateProperty.all<Color>(Colors.blue), // Button background color
+                        padding: MaterialStateProperty.all<EdgeInsetsGeometry>(
+                          EdgeInsets.all(10), // Increase padding for bigger button
+                        ),
+                      ),
+                      child: Text(
+                        'Submit Answer',
+                        style: TextStyle(
+                          fontSize: 14,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ),
               SizedBox(height: 24),
             ],
           ),
@@ -70,8 +97,19 @@ class _AnswerPageState extends State<AnswerPage> {
     }
   }
 
+  void startPageUpdate() {
+    // Start a timer to update playerList every 2 seconds
+    updatePageTimer = Timer.periodic(Duration(milliseconds: 10), (timer) {
+      if(player.currentPage == 'question'){
+        dispose();
+        Navigator.pop(context);
+      }
+    });
+  }
+
   @override
   void dispose() {
+    updatePageTimer.cancel();
     _answerController.dispose();
     super.dispose();
   }

@@ -30,6 +30,7 @@ class _StartPageState extends State<StartPage> {
           onPressed: () {
             server.dispose();
             Navigator.pop(context); // Navigate back to the previous screen
+            player.buzzStatus = false;
           },
         ),
       ),

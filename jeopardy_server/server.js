@@ -6,9 +6,29 @@ const wss = new WebSocket.Server({ port: 5000 });
 
 
 const triviaQuestions = [
-  { question: "What is the capital of France?", answer: "Paris" },
-  { question: "Who painted the Mona Lisa?", answer: "Leonardo da Vinci" },
-  // Add more questions as needed
+  { question: "What is the smallest planet in our solar system?", answer: "Mercury" },
+  { question: "Who wrote the novel '1984'?", answer: "George Orwell" },
+  { question: "What is the national animal of China?", answer: "Giant Panda" },
+  { question: "Who is often credited with inventing the light bulb?", answer: "Thomas Edison" },
+  { question: "What is the currency of Japan?", answer: "Japanese yen" },
+  { question: "Which planet is known as the Red Planet?", answer: "Mars" },
+  { question: "Who painted 'The Last Supper'?", answer: "Leonardo da Vinci" },
+  { question: "What is the largest mammal on Earth?", answer: "Blue Whale" },
+  { question: "What is the official language of Brazil?", answer: "Portuguese" },
+  { question: "Who is the lead vocalist of the band Queen?", answer: "Freddie Mercury" },
+  { question: "What is the most spoken language in the world?", answer: "Mandarin Chinese" },
+  { question: "Who is the creator of the 'Harry Potter' series?", answer: "J.K. Rowling" },
+  { question: "What is the tallest mountain in the world?", answer: "Mount Everest" },
+  { question: "Who wrote the 'I Have a Dream' speech?", answer: "Martin Luther King Jr." },
+  { question: "What is the chemical symbol for gold?", answer: "Au" },
+  { question: "Which planet is known for its beautiful rings?", answer: "Saturn" },
+  { question: "Who is often referred to as the 'Father of Modern Physics'?", answer: "Albert Einstein" },
+  { question: "What is the largest desert in the world?", answer: "Antarctica (Antarctic Desert)" },
+  { question: "Who painted 'The Scream'?", answer: "Edvard Munch" },
+  { question: "What is the national flower of Japan?", answer: "Cherry Blossom" },
+  { question: "Who is known for discovering penicillin?", answer: "Alexander Fleming" },
+  { question: "What is the capital of Canada?", answer: "Ottawa" }
+  // Add more questions if you'd like
 ];
 
 let game = new Game();
@@ -57,6 +77,48 @@ function handleIncomingClientMessage(ws, message)
       game.addPlayer(player);
       console.log("Added player:", player.playerName, player.id);
       console.log("Current game:", game)
+      wss.clients.forEach(client => {
+        if (client.readyState === WebSocket.OPEN) {
+          console.log("Sending game state to clients:", game.toJSON());
+          client.send(JSON.stringify(game.toJSON()));
+        }
+      });
+    }
+    else if(data.answer !== ''){
+      console.log("got answer from client");
+      if(data.answer === game.currentQuestion.answer){
+        game.players.forEach(currentPlayer => {
+          currentPlayer.currentPage = "question"
+          game.setRandomQuestion(triviaQuestions);
+          if(currentPlayer.id === ws.id){
+            currentPlayer.incrementScore();
+          }
+        });
+      }else{
+        game.players.forEach(currentPlayer => {
+          currentPlayer.currentPage = "question"
+          if(currentPlayer.id === ws.id){
+            currentPlayer.decrementScore();
+          }
+        });
+      }
+      wss.clients.forEach(client => {
+        if (client.readyState === WebSocket.OPEN) {
+          console.log("Sending game state to clients:", game.toJSON());
+          client.send(JSON.stringify(game.toJSON()));
+        }
+      });
+    }
+    else if(data.buzzStatus){
+      game.players.forEach(currentPlayer => {
+        if(currentPlayer.id !== ws.id){
+          currentPlayer.currentPage = 'wait';
+        }
+        else{
+          currentPlayer.currentPage = 'answer';
+          currentPlayer.buzzStatus = true;
+        }
+      });
       wss.clients.forEach(client => {
         if (client.readyState === WebSocket.OPEN) {
           console.log("Sending game state to clients:", game.toJSON());

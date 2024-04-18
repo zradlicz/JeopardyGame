@@ -3,6 +3,7 @@ import 'QuestionPage.dart';
 import 'LandingPage.dart';
 import 'StartPage.dart';
 import "AnswerPage.dart";
+import "WaitPage.dart";
 import 'package:web_socket_channel/web_socket_channel.dart';
 import 'dart:convert';
 
@@ -26,6 +27,7 @@ class MyApp extends StatelessWidget {
         '/start': (context) => StartPage(),
         '/question': (context) => QuestionPage(),
         '/answer': (context) => AnswerPage(),
+        '/wait': (context) => WaitPage(),
       }
     );
   }
@@ -174,6 +176,8 @@ class Server {
   player = game.players.firstWhere((playerInGame) => playerInGame.name == player.name,
   orElse: () => player,
   );
+  String playerJSON = json.encode(player.toJson());
+  print('Current Player: $playerJSON');
   }
 
 

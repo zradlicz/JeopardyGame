@@ -32,9 +32,12 @@ class _QuestionPageState extends State<QuestionPage> {
         leading: IconButton(
           icon: Icon(Icons.home_filled),
           onPressed: () {
-            Navigator.pop(context); // Navigate back to the previous screen
-            Navigator.pop(context);
+            //Navigator.pop(context); // Navigate back to the previous screen
+            //Navigator.pop(context);
+            int count = 0;
+            Navigator.of(context).popUntil((_) => count++ >= 2);
             player.currentPage = 'landing';
+            player.buzzStatus = false;
             server.dispose();
           },
         ),
@@ -178,8 +181,13 @@ class _QuestionPageState extends State<QuestionPage> {
     // Start a timer to update playerList every 2 seconds
     updatePlayersTimer = Timer.periodic(Duration(milliseconds: 10), (timer) {
       updatePlayerList(); // Update playerList continuously
+      if(player.currentPage == 'wait'){
+        Navigator.pushNamed(context, '/wait');
+        dispose();
+      }
     });
   }
+
 
   @override
   void dispose() {
