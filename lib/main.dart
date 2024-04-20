@@ -117,6 +117,10 @@ class Game {
     return names;
   }
 
+  List<String> getPlayerNamesWithScores() {
+    return players.map((player) => '${player.name}: ${player.score}').toList();
+  }
+
   Map<String, dynamic> toJson() {
     return {
       'players': players.map((player) => player.toJson()).toList(),

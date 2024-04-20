@@ -130,7 +130,7 @@ class _QuestionPageState extends State<QuestionPage> {
                 ),
                 child: SingleChildScrollView(
                   child: Column(
-                    children: playerList.map((playerName) {
+                    children: playerList.map((playerInfo) {
                       return Container(
                         margin: EdgeInsets.symmetric(vertical: 5),
                         decoration: BoxDecoration(
@@ -142,11 +142,11 @@ class _QuestionPageState extends State<QuestionPage> {
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             Text(
-                              playerName,
+                              playerInfo.split(': ')[0],
                               style: TextStyle(color: Colors.black),
                             ),
                             Text(
-                              'Score: 0',
+                              playerInfo.split(': ')[1],
                               style: TextStyle(color: Colors.black),
                             ),
                           ],
@@ -174,7 +174,7 @@ class _QuestionPageState extends State<QuestionPage> {
 
   FutureOr updatePlayerList(dynamic value) {
     setState(() {
-      playerList = game.getPlayerNames(); // Get the updated player list from the game
+      playerList = game.getPlayerNamesWithScores(); // Get the updated player list from the game
       question = game.currentQuestion;
       //print(question);
       currentPage = player.currentPage;
