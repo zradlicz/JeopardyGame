@@ -15,6 +15,7 @@ class _QuestionPageState extends State<QuestionPage> {
   final TextEditingController _answerController = TextEditingController();
   String question = game.currentQuestion;
   List<String> playerList = []; // Initialize an empty player list
+  String currentPage = '';
   late Timer updatePlayersTimer;
   bool isDrawerOpen = false;
 
@@ -171,19 +172,27 @@ class _QuestionPageState extends State<QuestionPage> {
     server.sendToServer(playerJSON);
   }
 
-  void updatePlayerList() {
+  FutureOr updatePlayerList(dynamic value) {
     setState(() {
       playerList = game.getPlayerNames(); // Get the updated player list from the game
+      question = game.currentQuestion;
+      //print(question);
+      currentPage = player.currentPage;
+      //print(currentPage);
+      if(!updatePlayersTimer.isActive)
+      {
+        startPlayerListUpdate();
+      }
     });
   }
 
   void startPlayerListUpdate() {
     // Start a timer to update playerList every 2 seconds
     updatePlayersTimer = Timer.periodic(Duration(milliseconds: 10), (timer) {
-      updatePlayerList(); // Update playerList continuously
-      if(player.currentPage == 'wait'){
-        Navigator.pushNamed(context, '/wait');
-        dispose();
+      updatePlayerList(''); // Update playerList continuously
+      if(currentPage == 'wait'){
+        Navigator.pushNamed(context, '/wait').then(updatePlayerList);
+        updatePlayersTimer.cancel(); // Cancel the timer in the dispose method
       }
     });
   }
@@ -191,9 +200,9 @@ class _QuestionPageState extends State<QuestionPage> {
 
   @override
   void dispose() {
-    updatePlayersTimer.cancel(); // Cancel the timer in the dispose method
-    _answerController.dispose();
-    _nameController.dispose();
+    
+    //_answerController.dispose();
+    //_nameController.dispose();
     super.dispose();
   }
 }

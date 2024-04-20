@@ -11,13 +11,15 @@ class AnswerPage extends StatefulWidget {
 }
 
 class _AnswerPageState extends State<AnswerPage> {
-  final TextEditingController _answerController = TextEditingController();
+  TextEditingController _answerController = TextEditingController();
   String question = game.currentQuestion;
   late Timer updatePageTimer;
 
   @override
   void initState() {
     startPageUpdate();
+    question = game.currentQuestion;
+    _answerController = TextEditingController();
     super.initState();
   }
 

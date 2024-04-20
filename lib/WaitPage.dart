@@ -10,23 +10,17 @@ class WaitPage extends StatefulWidget {
 }
 
 class _WaitPageState extends State<WaitPage> with SingleTickerProviderStateMixin {
-  late AnimationController _controller;
   late Timer updatePageTimer;
 
   @override
   void initState() {
     super.initState();
     startPageUpdate();
-    _controller = AnimationController(
-      vsync: this,
-      duration: Duration(seconds: 1),
-    )..repeat();
   }
 
   @override
   void dispose() {
     updatePageTimer.cancel();
-    _controller.dispose();
     super.dispose();
   }
 
@@ -54,15 +48,6 @@ class _WaitPageState extends State<WaitPage> with SingleTickerProviderStateMixin
               style: TextStyle(fontSize: 20, color: Colors.white),
             ),
             SizedBox(height: 20),
-            AnimatedBuilder(
-              animation: _controller,
-              builder: (context, child) {
-                return Text(
-                  '...',
-                  style: TextStyle(fontSize: 32, color: Colors.white),
-                );
-              },
-            ),
           ],
         ),
       ),
@@ -73,8 +58,8 @@ class _WaitPageState extends State<WaitPage> with SingleTickerProviderStateMixin
     // Start a timer to update playerList every 2 seconds
     updatePageTimer = Timer.periodic(Duration(milliseconds: 10), (timer) {
       if(player.currentPage == 'question'){
-        Navigator.pop(context);
         dispose();
+        Navigator.pop(context);
       }
     });
   }
