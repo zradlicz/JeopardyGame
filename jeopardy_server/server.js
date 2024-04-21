@@ -1,3 +1,6 @@
+const calculateScore = require ('./answerChecking.js');
+const main = require ('./aiQuestionGenerator.js');
+
 const Player = require('./player');
 const Game = require('./game');
 
@@ -5,34 +8,24 @@ const WebSocket = require("ws");
 const wss = new WebSocket.Server({ port: 5000 });
 
 
-const triviaQuestions = [
-  { question: "What is the smallest planet in our solar system?", answer: "Mercury" },
-  { question: "Who wrote the novel '1984'?", answer: "George Orwell" },
-  { question: "What is the national animal of China?", answer: "Giant Panda" },
-  { question: "Who is often credited with inventing the light bulb?", answer: "Thomas Edison" },
-  { question: "What is the currency of Japan?", answer: "Japanese yen" },
-  { question: "Which planet is known as the Red Planet?", answer: "Mars" },
-  { question: "Who painted 'The Last Supper'?", answer: "Leonardo da Vinci" },
-  { question: "What is the largest mammal on Earth?", answer: "Blue Whale" },
-  { question: "What is the official language of Brazil?", answer: "Portuguese" },
-  { question: "Who is the lead vocalist of the band Queen?", answer: "Freddie Mercury" },
-  { question: "What is the most spoken language in the world?", answer: "Mandarin Chinese" },
-  { question: "Who is the creator of the 'Harry Potter' series?", answer: "J.K. Rowling" },
-  { question: "What is the tallest mountain in the world?", answer: "Mount Everest" },
-  { question: "Who wrote the 'I Have a Dream' speech?", answer: "Martin Luther King Jr." },
-  { question: "What is the chemical symbol for gold?", answer: "Au" },
-  { question: "Which planet is known for its beautiful rings?", answer: "Saturn" },
-  { question: "Who is often referred to as the 'Father of Modern Physics'?", answer: "Albert Einstein" },
-  { question: "What is the largest desert in the world?", answer: "Antarctica (Antarctic Desert)" },
-  { question: "Who painted 'The Scream'?", answer: "Edvard Munch" },
-  { question: "What is the national flower of Japan?", answer: "Cherry Blossom" },
-  { question: "Who is known for discovering penicillin?", answer: "Alexander Fleming" },
-  { question: "What is the capital of Canada?", answer: "Ottawa" }
-  // Add more questions if you'd like
-];
+const triviaQuestions = [];
+
+async function generateQuestion() {
+  const chatCompletion = await main();
+  try{
+    const question = JSON.parse(chatCompletion.choices[0].message.content);
+    console.log(question);
+    triviaQuestions.add(question);
+  }catch{
+  }
+  
+}
+
+generateQuestion();
 
 let game = new Game();
 game.setRandomQuestion(triviaQuestions);
+//game.generateQuestion();
 
 wss.on("connection", ws => {
   
@@ -86,10 +79,22 @@ function handleIncomingClientMessage(ws, message)
     }
     else if(data.answer !== ''){
       console.log("got answer from client");
-      if(data.answer === game.currentQuestion.answer){
+      score = calculateScore(data.answer, game.currentQuestion.answer) 
+      if(score === 2){
         game.players.forEach(currentPlayer => {
           currentPlayer.currentPage = "question"
           game.setRandomQuestion(triviaQuestions);
+          //game.generateQuestion();
+          if(currentPlayer.id === ws.id){
+            currentPlayer.incrementScore();
+            currentPlayer.incrementScore();
+          }
+        });
+      }else if(score === 1){
+        game.players.forEach(currentPlayer => {
+          currentPlayer.currentPage = "question"
+          game.setRandomQuestion(triviaQuestions);
+          //game.generateQuestion();
           if(currentPlayer.id === ws.id){
             currentPlayer.incrementScore();
           }

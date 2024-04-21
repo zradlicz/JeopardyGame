@@ -1,3 +1,5 @@
+const main = require ('./aiQuestionGenerator.js');
+
 class Game {
     constructor() {
       this.players = [];
@@ -28,7 +30,7 @@ class Game {
           // Return the question at the random index
           this.currentQuestion = questions[randomIndex];
     }
-  
+
     toJSON() {
       return {
         players: this.players.map(player => player.toJSON()),

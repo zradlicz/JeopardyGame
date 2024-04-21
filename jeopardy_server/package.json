@@ -1,5 +1,7 @@
 {
   "dependencies": {
+    "groq-sdk": "^0.3.2",
+    "node": "^18.20.2",
     "random": "^4.1.0",
     "ws": "^8.16.0"
   }
