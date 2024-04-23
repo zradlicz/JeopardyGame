@@ -44,7 +44,7 @@ class _WaitPageState extends State<WaitPage> with SingleTickerProviderStateMixin
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Text(
-              'Waiting for answer...',
+              'Someone beat you to the buzzer...',
               style: TextStyle(fontSize: 20, color: Colors.white),
             ),
             SizedBox(height: 20),

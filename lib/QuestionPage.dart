@@ -11,8 +11,6 @@ class QuestionPage extends StatefulWidget {
 }
 
 class _QuestionPageState extends State<QuestionPage> {
-  final TextEditingController _nameController = TextEditingController();
-  final TextEditingController _answerController = TextEditingController();
   String question = game.currentQuestion;
   List<String> playerList = []; // Initialize an empty player list
   String currentPage = '';
@@ -39,6 +37,7 @@ class _QuestionPageState extends State<QuestionPage> {
             Navigator.of(context).popUntil((_) => count++ >= 2);
             player.currentPage = 'landing';
             player.buzzStatus = false;
+            updatePlayersTimer.cancel();
             server.dispose();
           },
         ),
@@ -59,12 +58,14 @@ class _QuestionPageState extends State<QuestionPage> {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Text(
-                      question, // Add your text here
-                      style: TextStyle(
-                        fontSize: 32,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white,
+                    Center(
+                      child: Text(
+                        question, // Add your text here
+                        style: TextStyle(
+                          fontSize: 32,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                        ),
                       ),
                     ),
                     SizedBox(height: 24),
@@ -201,8 +202,6 @@ class _QuestionPageState extends State<QuestionPage> {
   @override
   void dispose() {
     
-    //_answerController.dispose();
-    //_nameController.dispose();
     super.dispose();
   }
 }

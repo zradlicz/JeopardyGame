@@ -14,6 +14,7 @@ class _AnswerPageState extends State<AnswerPage> {
   TextEditingController _answerController = TextEditingController();
   String question = game.currentQuestion;
   late Timer updatePageTimer;
+  var timerCount = 0;
 
   @override
   void initState() {
@@ -34,6 +35,7 @@ class _AnswerPageState extends State<AnswerPage> {
             Navigator.of(context).popUntil((route) => route.isFirst); // Navigate back to the landing page
             player.currentPage = 'landing';
             player.buzzStatus = false;
+            dispose();
             server.dispose();
           },
         ),
@@ -44,14 +46,16 @@ class _AnswerPageState extends State<AnswerPage> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Text(
-                  question, // Add your text here
-                  style: TextStyle(
-                      fontSize: 32,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
+              Center(
+                child: Text(
+                    question, // Add your text here
+                    style: TextStyle(
+                        fontSize: 32,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                      ),
                     ),
-                  ),
+              ),
               SizedBox(height: 20),
               TextFormField(
                 controller: _answerController,
@@ -71,13 +75,13 @@ class _AnswerPageState extends State<AnswerPage> {
                       style: ButtonStyle(
                         backgroundColor: MaterialStateProperty.all<Color>(Colors.blue), // Button background color
                         padding: MaterialStateProperty.all<EdgeInsetsGeometry>(
-                          EdgeInsets.all(10), // Increase padding for bigger button
+                          EdgeInsets.symmetric(horizontal: 40, vertical: 15), // Increase padding for bigger button
                         ),
                       ),
                       child: Text(
                         'Submit Answer',
                         style: TextStyle(
-                          fontSize: 14,
+                          fontSize: 18,
                           color: Colors.white,
                         ),
                       ),
@@ -92,6 +96,7 @@ class _AnswerPageState extends State<AnswerPage> {
 
   void _submitAnswer() {
     final userAnswer = _answerController.text;
+    _answerController.dispose();
     if (userAnswer.isNotEmpty) {
       player.answer = userAnswer;
       String playerJSON = json.encode(player.toJson());
@@ -112,7 +117,6 @@ class _AnswerPageState extends State<AnswerPage> {
   @override
   void dispose() {
     updatePageTimer.cancel();
-    _answerController.dispose();
     super.dispose();
   }
 }

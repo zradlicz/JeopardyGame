@@ -1,30 +1,53 @@
 const calculateScore = require ('./answerChecking.js');
-const main = require ('./aiQuestionGenerator.js');
-
+const main = require('./aiQuestionGenerator.js');
 const Player = require('./player');
 const Game = require('./game');
-
 const WebSocket = require("ws");
+
 const wss = new WebSocket.Server({ port: 5000 });
-
-
 const triviaQuestions = [];
 
 async function generateQuestion() {
-  const chatCompletion = await main();
-  try{
-    const question = JSON.parse(chatCompletion.choices[0].message.content);
-    console.log(question);
-    triviaQuestions.add(question);
-  }catch{
-  }
-  
+    while (triviaQuestions.length < 3) {
+        const chatCompletion = await main();
+        try {
+            const question = JSON.parse(chatCompletion.choices[0].message.content);
+            console.log("Generated question:", question);
+            triviaQuestions.push(question);
+        } catch (error) {
+            console.error("Error generating question:", error);
+        }
+    }
 }
 
+// Refill questions if less than 5
+function refillQuestionsIfNeeded() {
+    if(game.currentQuestion === ''){
+      game.setRandomQuestion(triviaQuestions);
+    }
+    //console.log(triviaQuestions);
+    if (triviaQuestions.length < 2) {
+        generateQuestion();
+    }
+}
+
+// Remove answered question
+function removeAnsweredQuestion(question) {
+    const index = triviaQuestions.indexOf(question);
+    if (index !== -1) {
+        triviaQuestions.splice(index, 1);
+        console.log("Removed answered question from the list.");
+    }
+}
+
+// Run generateQuestion continuously
 generateQuestion();
 
+// Set interval to check and refill questions
+setInterval(refillQuestionsIfNeeded, 1000); // Check every 30 seconds
+
 let game = new Game();
-game.setRandomQuestion(triviaQuestions);
+
 //game.generateQuestion();
 
 wss.on("connection", ws => {
@@ -83,6 +106,7 @@ function handleIncomingClientMessage(ws, message)
       if(score === 2){
         game.players.forEach(currentPlayer => {
           currentPlayer.currentPage = "question"
+          removeAnsweredQuestion(game.currentQuestion);
           game.setRandomQuestion(triviaQuestions);
           //game.generateQuestion();
           if(currentPlayer.id === ws.id){
@@ -93,6 +117,7 @@ function handleIncomingClientMessage(ws, message)
       }else if(score === 1){
         game.players.forEach(currentPlayer => {
           currentPlayer.currentPage = "question"
+          removeAnsweredQuestion(game.currentQuestion);
           game.setRandomQuestion(triviaQuestions);
           //game.generateQuestion();
           if(currentPlayer.id === ws.id){
