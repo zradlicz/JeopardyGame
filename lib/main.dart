@@ -145,8 +145,8 @@ class Server {
 
   Server() {
     channel = WebSocketChannel.connect(
-      //Uri.parse('wss://endless-lemming-only.ngrok-free.app'), //use for rpi server
-      Uri.parse('ws://localhost:5000'), //use for dev server
+      Uri.parse('wss://endless-lemming-only.ngrok-free.app'), //use for rpi server
+      //Uri.parse('ws://localhost:5000'), //use for dev server
     );
     channel.stream.listen((message){
     messageFromServer = message;
@@ -156,8 +156,8 @@ class Server {
 
   void reconnect(){
     channel = WebSocketChannel.connect(
-      //Uri.parse('wss://endless-lemming-only.ngrok-free.app'), //use for rpi server
-      Uri.parse('ws://localhost:5000'), //use for dev server
+      Uri.parse('wss://endless-lemming-only.ngrok-free.app'), //use for rpi server
+      //Uri.parse('ws://localhost:5000'), //use for dev server
     );
     channel.stream.listen((message){
     messageFromServer = message;
