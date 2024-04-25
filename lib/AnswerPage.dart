@@ -96,11 +96,11 @@ class _AnswerPageState extends State<AnswerPage> {
 
   void _submitAnswer() {
     final userAnswer = _answerController.text;
-    _answerController.dispose();
     if (userAnswer.isNotEmpty) {
       player.answer = userAnswer;
       String playerJSON = json.encode(player.toJson());
       server.sendToServer(playerJSON);
+      _answerController.dispose();
     }
   }
 
