@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'main.dart';
-import 'dart:convert';
 
 class LandingPage extends StatelessWidget {
   final TextEditingController _nameController = TextEditingController();
@@ -42,16 +41,7 @@ class LandingPage extends StatelessWidget {
               SizedBox(height: 20),
               ElevatedButton(
                 onPressed: () {
-                  if (server.reconnectNeeded) {
-                    server.reconnect();
-                  }
-                  String playerName = _nameController.text.trim();
-                  player.playerName = playerName;
-                  String playerJSON = json.encode(player.toJson());
-                  print(playerJSON);
-                  Navigator.pushNamed(context, '/start');
-                  server.sendToServer(playerJSON);
-                  // Navigate to the game page
+                  _joinGame(context);
                 },
                 style: ElevatedButton.styleFrom(
                   padding: EdgeInsets.symmetric(horizontal: 40, vertical: 15),
@@ -73,5 +63,11 @@ class LandingPage extends StatelessWidget {
         ),
       ),
     );
+  }
+    void _joinGame(BuildContext context){
+      player.setName = _nameController.text.trim();
+      player.setCurrentPage = '/start';
+      player.sendPlayerToServer(server);
+      Navigator.pushNamed(context, player.getCurrentPage);
   }
 }

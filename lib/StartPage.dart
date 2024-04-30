@@ -11,13 +11,12 @@ class StartPage extends StatefulWidget {
 }
 
 class _StartPageState extends State<StartPage> {
-  List<String> playerList = [];
-  late Timer updatePlayersTimer;
+  late Timer gameUpdateTimer;
 
   @override
   void initState() {
     super.initState();
-    startPlayerListUpdate();
+    startGameUpdateTimer();
   }
 
   @override
@@ -28,9 +27,7 @@ class _StartPageState extends State<StartPage> {
         leading: IconButton(
           icon: Icon(Icons.home_filled),
           onPressed: () {
-            server.dispose();
-            Navigator.pop(context); // Navigate back to the previous screen
-            player.buzzStatus = false;
+            _goHome();
           },
         ),
       ),
@@ -65,7 +62,7 @@ class _StartPageState extends State<StartPage> {
                 child: SingleChildScrollView(
                   child: Center(
                     child: Column(
-                      children: playerList.map((playerName) {
+                      children: game.players.map((player) {
                         return Container(
                           margin: EdgeInsets.symmetric(vertical: 5),
                           constraints: BoxConstraints(maxWidth: 300),
@@ -78,7 +75,7 @@ class _StartPageState extends State<StartPage> {
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
                               Text(
-                                playerName,
+                                player.name,
                                 style: TextStyle(color: Colors.black), // Ovular card text color
                               ),
                               Text(
@@ -100,19 +97,20 @@ class _StartPageState extends State<StartPage> {
     );
   }
 
+  void _goHome(){
+    server.dispose();
+    Navigator.pop(context); // Navigate back to the previous screen
+  }
+
   void _startGame() {
-    // Add logic to start the game, navigate to the game page, etc.
-    Navigator.pushNamed(context, '/question');
-    dispose();
-    player.currentPage = 'question';
-    String playerJSON = json.encode(player.toJson());
-    server.sendToServer(playerJSON);
-    print("Sending game page update");
+    player.setCurrentPage = '/question';
+    player.sendPlayerToServer(server);
+    Navigator.pushNamed(context, player.getCurrentPage);
   }
   
-  void startPlayerListUpdate() {
+  void startGameUpdateTimer() {
     // Start a timer to update playerList every 2 seconds
-    updatePlayersTimer = Timer.periodic(Duration(milliseconds: 10), (timer) {
+    gameUpdateTimer = Timer.periodic(Duration(milliseconds: 10), (timer) {
       updatePlayerList(); // Update playerList continuously
       if(player.currentPage == 'question'){
         Navigator.pushNamed(context, '/question');
