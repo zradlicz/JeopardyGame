@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'main.dart';
-import 'dart:convert';
 import 'dart:async'; // Import dart:async for Timer
 
 class AnswerPage extends StatefulWidget {
@@ -12,15 +11,11 @@ class AnswerPage extends StatefulWidget {
 
 class _AnswerPageState extends State<AnswerPage> {
   TextEditingController _answerController = TextEditingController();
-  String question = game.currentQuestion;
-  late Timer updatePageTimer;
-  var timerCount = 0;
+  late Timer gameUpdateTimer;
 
   @override
   void initState() {
-    startPageUpdate();
-    question = game.currentQuestion;
-    _answerController = TextEditingController();
+    startGameUpdateTimer();
     super.initState();
   }
 
@@ -32,11 +27,7 @@ class _AnswerPageState extends State<AnswerPage> {
         leading: IconButton(
           icon: Icon(Icons.home_filled),
           onPressed: () {
-            Navigator.of(context).popUntil((route) => route.isFirst); // Navigate back to the landing page
-            player.currentPage = 'landing';
-            player.buzzStatus = false;
-            dispose();
-            server.dispose();
+            _goHome();
           },
         ),
       ),
@@ -48,7 +39,7 @@ class _AnswerPageState extends State<AnswerPage> {
             children: [
               Center(
                 child: Text(
-                    question, // Add your text here
+                    game.currentQuestion.question, // Add your text here
                     style: TextStyle(
                         fontSize: 32,
                         fontWeight: FontWeight.bold,
@@ -94,20 +85,24 @@ class _AnswerPageState extends State<AnswerPage> {
     );
   }
 
+  _goHome(){
+    Navigator.of(context).popUntil((route) => route.isFirst); // Navigate back to the landing page
+    player.setCurrentPage = '/landing';
+    player.setBuzzStatus = false;
+    dispose();
+  }
   void _submitAnswer() {
     final userAnswer = _answerController.text;
     if (userAnswer.isNotEmpty) {
-      player.answer = userAnswer;
-      String playerJSON = json.encode(player.toJson());
-      server.sendToServer(playerJSON);
+      player.setAnswer = userAnswer;
+      player.sendPlayerToServer(server);
       _answerController.dispose();
     }
   }
 
-  void startPageUpdate() {
-    // Start a timer to update playerList every 2 seconds
-    updatePageTimer = Timer.periodic(Duration(milliseconds: 10), (timer) {
-      if(player.currentPage == 'question'){
+  void startGameUpdateTimer() {
+    gameUpdateTimer = Timer.periodic(Duration(milliseconds: 10), (timer) {
+      if(player.getCurrentPage == '/question'){
         dispose();
         Navigator.pop(context);
       }
@@ -116,7 +111,8 @@ class _AnswerPageState extends State<AnswerPage> {
 
   @override
   void dispose() {
-    updatePageTimer.cancel();
+    server.dispose();
+    gameUpdateTimer.cancel();
     super.dispose();
   }
 }

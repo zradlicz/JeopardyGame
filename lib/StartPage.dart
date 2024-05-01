@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'dart:async'; // Import dart:async for Timer
-import 'dart:convert';
 import 'main.dart';
 
 class StartPage extends StatefulWidget {
@@ -109,25 +108,18 @@ class _StartPageState extends State<StartPage> {
   }
   
   void startGameUpdateTimer() {
-    // Start a timer to update playerList every 2 seconds
     gameUpdateTimer = Timer.periodic(Duration(milliseconds: 10), (timer) {
-      updatePlayerList(); // Update playerList continuously
-      if(player.currentPage == 'question'){
-        Navigator.pushNamed(context, '/question');
+      setState(() {});
+      if(player.getCurrentPage == '/question'){
+        Navigator.pushNamed(context, player.getCurrentPage);
         dispose();
       }
     });
   }
 
-  void updatePlayerList() {
-    setState(() {
-      playerList = game.getPlayerNames();
-    });
-  }
-
   @override
   void dispose() {
-    updatePlayersTimer.cancel(); // Cancel the timer in the dispose method
+    gameUpdateTimer.cancel(); // Cancel the timer in the dispose method
     super.dispose();
   }
 }

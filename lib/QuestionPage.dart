@@ -11,16 +11,13 @@ class QuestionPage extends StatefulWidget {
 }
 
 class _QuestionPageState extends State<QuestionPage> {
-  String question = game.currentQuestion;
-  List<String> playerList = []; // Initialize an empty player list
-  String currentPage = '';
-  late Timer updatePlayersTimer;
+  late Timer gameUpdateTimer;
   bool isDrawerOpen = false;
 
   @override
   void initState() {
     super.initState();
-    startPlayerListUpdate(); // Start the timer to update player list
+    startGameUpdateTimer(); // Start the timer to update player list
   }
 
   @override
@@ -33,12 +30,7 @@ class _QuestionPageState extends State<QuestionPage> {
           onPressed: () {
             //Navigator.pop(context); // Navigate back to the previous screen
             //Navigator.pop(context);
-            int count = 0;
-            Navigator.of(context).popUntil((_) => count++ >= 2);
-            player.currentPage = 'landing';
-            player.buzzStatus = false;
-            updatePlayersTimer.cancel();
-            server.dispose();
+            _goHome();
           },
         ),
       ),
@@ -60,7 +52,7 @@ class _QuestionPageState extends State<QuestionPage> {
                   children: [
                     Center(
                       child: Text(
-                        question, // Add your text here
+                        game.currentQuestion.question, // Add your text here
                         style: TextStyle(
                           fontSize: 32,
                           fontWeight: FontWeight.bold,
@@ -131,7 +123,7 @@ class _QuestionPageState extends State<QuestionPage> {
                 ),
                 child: SingleChildScrollView(
                   child: Column(
-                    children: playerList.map((playerInfo) {
+                    children: game.players.map((player) {
                       return Container(
                         margin: EdgeInsets.symmetric(vertical: 5),
                         decoration: BoxDecoration(
@@ -143,11 +135,11 @@ class _QuestionPageState extends State<QuestionPage> {
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             Text(
-                              playerInfo.split(': ')[0],
+                              player.name,
                               style: TextStyle(color: Colors.black),
                             ),
                             Text(
-                              playerInfo.split(': ')[1],
+                              player.score.toString(),
                               style: TextStyle(color: Colors.black),
                             ),
                           ],
@@ -164,36 +156,25 @@ class _QuestionPageState extends State<QuestionPage> {
     );
   }
 
+  void _goHome(){
+    int count = 0;
+    Navigator.of(context).popUntil((_) => count++ >= 2);
+    player.setCurrentPage = '/landing';
+    player.setBuzzStatus = false;
+    server.dispose();
+  }
   void _buzzIn() {
-    player.buzzStatus = true;
-    print("Question: $question");
-    print(game.toJson());
+    player.setBuzzStatus = true;
     Navigator.pushNamed(context, '/answer');
-    String playerJSON = json.encode(player.toJson());
-    server.sendToServer(playerJSON);
+    player.sendPlayerToServer(server);
   }
 
-  FutureOr updatePlayerList(dynamic value) {
-    setState(() {
-      playerList = game.getPlayerNamesWithScores(); // Get the updated player list from the game
-      question = game.currentQuestion;
-      //print(question);
-      currentPage = player.currentPage;
-      //print(currentPage);
-      if(!updatePlayersTimer.isActive)
-      {
-        startPlayerListUpdate();
-      }
-    });
-  }
-
-  void startPlayerListUpdate() {
-    // Start a timer to update playerList every 2 seconds
-    updatePlayersTimer = Timer.periodic(Duration(milliseconds: 10), (timer) {
-      updatePlayerList(''); // Update playerList continuously
-      if(currentPage == 'wait'){
-        Navigator.pushNamed(context, '/wait').then(updatePlayerList);
-        updatePlayersTimer.cancel(); // Cancel the timer in the dispose method
+  void startGameUpdateTimer() {
+    gameUpdateTimer = Timer.periodic(Duration(milliseconds: 10), (timer) {
+      setState(() {});
+      if(player.getCurrentPage == '/wait'){
+        Navigator.pushNamed(context, player.getCurrentPage);
+        gameUpdateTimer.cancel();
       }
     });
   }
@@ -201,7 +182,7 @@ class _QuestionPageState extends State<QuestionPage> {
 
   @override
   void dispose() {
-    
+    gameUpdateTimer.cancel();
     super.dispose();
   }
 }

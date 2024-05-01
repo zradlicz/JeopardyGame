@@ -1,51 +1,61 @@
 const main = require ('./aiQuestionGenerator.js');
 
+let DEBUG = true;
+
 class Game {
     constructor() {
       this.players = [];
-      this.currentQuestion = "";
+      this.gameBoard = new Board();
+      this.currentQuestion = new Question();
     }
   
     addPlayer(player) {
       this.players.push(player);
+      if(DEBUG){console.log("Added player to game.")};
     }
   
-    removePlayer(id) {
+    removePlayerById(id) {
       this.players = this.players.filter(player => player.id !== id);
+      if(DEBUG){console.log("Removed player from game.")};
     }
   
     getPlayerNames() {
-      return this.players.map(player => player.name);
-    }
-
-    setRandomQuestion(questions) {
-        if (!Array.isArray(questions) || questions.length === 0) {
-            console.error("Invalid or empty questions array");
-            return;
-          }
-      
-          // Generate a random index within the range of the questions array
-          const randomIndex = Math.floor(Math.random() * questions.length);
-      
-          // Return the question at the random index
-          this.currentQuestion = questions[randomIndex];
+      if(DEBUG){console.log("Got player names.")};
+      return this.players.map(player => player.name); 
     }
 
     toJSON() {
       return {
         players: this.players.map(player => player.toJSON()),
-        currentQuestion: this.currentQuestion.question
+        gameBoard: this.gameBoard,
+        currentQuestion: this.currentQuestion
       };
-    }
-  
-    static fromJSON(json) {
-      const game = new Game();
-      json.players.forEach(playerJson => {
-        const player = Player.fromJSON(playerJson);
-        game.players.push(player);
-      });
-      return game;
     }
   }
 
+  class Board {
+    constructor() {
+      this.questions = [];
+    }
+
+    addQuestion(question){
+      this.questions.push(question);
+      if(DEBUG){console.log("Added question to board")};
+    }
+  }
+
+  class Question {
+    constructor() {
+      this.question = '';
+      this.answer = '';
+    }
+
+    static fromJSON(json) {
+      const question = new Question();
+      question.question = json.question;
+      question.answer = json.answer;
+      return question;
+    }
+  }
+  
   module.exports = Game;

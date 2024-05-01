@@ -3,36 +3,10 @@ class Player {
       this.name = '';
       this.id = '';
       this.currentPage = '';
+      this.answer = '';
       this.score = 0;
       this.buzzStatus = false;
-    }
-  
-    get playerName() {
-      return this.name;
-    }
-  
-    set playerName(name) {
-      this.name = name;
-    }
-  
-    incrementScore() {
-      this.score++;
-    }
-  
-    decrementScore() {
-      this.score--;
-    }
-  
-    buzzActive() {
-      return this.buzzStatus;
-    }
-  
-    buzzActivate() {
-      this.buzzStatus = true;
-    }
-  
-    buzzDeactivate() {
-      this.buzzStatus = false;
+      this.questionSelection = 0;
     }
   
     toJSON() {
@@ -40,8 +14,10 @@ class Player {
         name: this.name,
         id: this.id,
         currentPage: this.currentPage,
+        answer: this.answer,
         score: this.score,
-        buzzStatus: this.buzzStatus
+        buzzStatus: this.buzzStatus,
+        questionSelection: this.questionSelection
       };
     }
   
@@ -50,8 +26,10 @@ class Player {
       player.name = json.name;
       player.id = json.id;
       player.currentPage = json.currentPage;
+      player.answer = json.answer;
       player.score = json.score;
       player.buzzStatus = json.buzzStatus;
+      player.questionSelection = json.questionSelection;
       return player;
     }
   }
