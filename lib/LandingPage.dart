@@ -65,9 +65,9 @@ class LandingPage extends StatelessWidget {
     );
   }
     void _joinGame(BuildContext context){
-      player.setName = _nameController.text.trim();
-      player.setCurrentPage = '/start';
-      player.sendPlayerToServer(server);
-      Navigator.pushNamed(context, player.getCurrentPage);
+      globalPlayer.setName = _nameController.text.trim();
+      globalPlayer.setCurrentPage = '/start';
+      globalPlayer.sendPlayerToServer(globalServer);
+      Navigator.pushNamed(context, globalPlayer.getCurrentPage);
   }
 }

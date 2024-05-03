@@ -4,7 +4,7 @@ const Player = require('./player');
 const Game = require('./game');
 const WebSocket = require("ws");
 
-const DEBUG = true;
+const DEBUG = false;
 
 class JeopardyServer {
   constructor() {
@@ -22,39 +22,65 @@ class JeopardyServer {
   //method to handle player disconnect from server
   handlePlayerDisconnection(ws){
     let player;
-    self.jeopardyGame.players.forEach(currentPlayer => {
+    this.jeopardyGame.players.forEach(currentPlayer => {
           if(currentPlayer.id === ws.id){
             player = currentPlayer;
+            this.jeopardyGame.removePlayerById(player.id);
           }
         })
-        self.jeopardyGame.removePlayer(player.id)
+    this.sendGameToClients();
+        
     if(DEBUG){console.log("Player called TODO disconnected")};
   }
 
   //method to handle message from client
   handleIncomingClientMessage(ws, message){
     
-    let data;
+    let playerData;
     try {
-      data = JSON.parse(message);
+      playerData = JSON.parse(message);
     } catch (error) {
       console.error("Error parsing JSON:", error);
       return; // Skip processing if the message is not valid JSON
     }
+    if(DEBUG){console.log("Recieved client message:", playerData)};
 
-    let player = Player.fromJSON(data);
-    self.jeopardyGame.addPlayer(player);
+    if(this.playerIsInGame(ws.id)){
+      this.jeopardyGame.updateGameFromPlayer(Player.fromJSON(playerData));
+      this.sendGameToClients();
+    }
+    else{
+      this.addPlayer(ws.id, playerData);
+    }
+    
 
     if(DEBUG){console.log("Client message handled.")};
   }
 
+  addPlayer(playerId, playerData){
+    let player = Player.fromJSON(playerData);
+    player.id = playerId;
+    this.jeopardyGame.addPlayer(player);
+    this.sendGameToClients();
+  }
+
+  playerIsInGame(playerId){
+    let rv = false;
+    this.jeopardyGame.players.forEach(currentPlayer => {
+      if(currentPlayer.id === playerId){
+        rv = true;
+      }
+    })
+    return rv;
+  }
+
   sendGameToClients(){
-    self.wss.clients.forEach(client => {
+    this.wss.clients.forEach(client => {
               if (client.readyState === WebSocket.OPEN) {
-                console.log("Sending game state to clients:", self.jeopardyGame.toJSON());
-                client.send(JSON.stringify(self.jeopardyGame.toJSON()));
+                client.send(JSON.stringify(this.jeopardyGame.toJSON()));
               }
             });
+    if(DEBUG){console.log("Sending game state to clients:", this.jeopardyGame.toJSON());}
   }
 }
 

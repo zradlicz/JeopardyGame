@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'main.dart';
 import 'dart:async'; // Import dart:async for Timer
-import 'dart:convert';
 
 class QuestionPage extends StatefulWidget {
   const QuestionPage({Key? key}) : super(key: key);
@@ -52,7 +51,7 @@ class _QuestionPageState extends State<QuestionPage> {
                   children: [
                     Center(
                       child: Text(
-                        game.currentQuestion.question, // Add your text here
+                        globalGame.currentQuestion.question, // Add your text here
                         style: TextStyle(
                           fontSize: 32,
                           fontWeight: FontWeight.bold,
@@ -123,7 +122,7 @@ class _QuestionPageState extends State<QuestionPage> {
                 ),
                 child: SingleChildScrollView(
                   child: Column(
-                    children: game.players.map((player) {
+                    children: globalGame.players.map((player) {
                       return Container(
                         margin: EdgeInsets.symmetric(vertical: 5),
                         decoration: BoxDecoration(
@@ -159,21 +158,21 @@ class _QuestionPageState extends State<QuestionPage> {
   void _goHome(){
     int count = 0;
     Navigator.of(context).popUntil((_) => count++ >= 2);
-    player.setCurrentPage = '/landing';
-    player.setBuzzStatus = false;
-    server.dispose();
+    globalPlayer.setCurrentPage = '/landing';
+    globalPlayer.setBuzzStatus = false;
+    globalServer.dispose();
   }
   void _buzzIn() {
-    player.setBuzzStatus = true;
+    globalPlayer.setBuzzStatus = true;
     Navigator.pushNamed(context, '/answer');
-    player.sendPlayerToServer(server);
+    globalPlayer.sendPlayerToServer(globalServer);
   }
 
   void startGameUpdateTimer() {
     gameUpdateTimer = Timer.periodic(Duration(milliseconds: 10), (timer) {
       setState(() {});
-      if(player.getCurrentPage == '/wait'){
-        Navigator.pushNamed(context, player.getCurrentPage);
+      if(globalPlayer.getCurrentPage == '/wait'){
+        Navigator.pushNamed(context, globalPlayer.getCurrentPage);
         gameUpdateTimer.cancel();
       }
     });

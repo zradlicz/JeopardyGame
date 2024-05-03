@@ -16,9 +16,9 @@ void main() => runApp(const MyApp());
 
 
 //global client classes
-Player player = Player();
-Game game = Game();
-Server server = Server();
+Player globalPlayer = Player();
+Game globalGame = Game();
+Server globalServer = Server();
 
 class MyApp extends StatelessWidget {
   const MyApp({Key? key}) : super(key: key);

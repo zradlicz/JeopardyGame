@@ -33,9 +33,9 @@ class _WaitPageState extends State<WaitPage> with SingleTickerProviderStateMixin
           icon: Icon(Icons.home_filled),
           onPressed: () {
             Navigator.of(context).popUntil((route) => route.isFirst); // Navigate back to the landing page
-            player.currentPage = 'landing';
-            player.buzzStatus = false;
-            server.dispose();
+            globalPlayer.currentPage = 'landing';
+            globalPlayer.buzzStatus = false;
+            globalServer.dispose();
           },
         ),
       ),
@@ -57,7 +57,7 @@ class _WaitPageState extends State<WaitPage> with SingleTickerProviderStateMixin
   void startPageUpdate() {
     // Start a timer to update playerList every 2 seconds
     updatePageTimer = Timer.periodic(Duration(milliseconds: 10), (timer) {
-      if(player.currentPage == 'question'){
+      if(globalPlayer.currentPage == 'question'){
         dispose();
         Navigator.pop(context);
       }

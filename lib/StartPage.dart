@@ -61,7 +61,7 @@ class _StartPageState extends State<StartPage> {
                 child: SingleChildScrollView(
                   child: Center(
                     child: Column(
-                      children: game.players.map((player) {
+                      children: globalGame.players.map((player) {
                         return Container(
                           margin: EdgeInsets.symmetric(vertical: 5),
                           constraints: BoxConstraints(maxWidth: 300),
@@ -97,21 +97,21 @@ class _StartPageState extends State<StartPage> {
   }
 
   void _goHome(){
-    server.dispose();
+    globalServer.dispose();
     Navigator.pop(context); // Navigate back to the previous screen
   }
 
   void _startGame() {
-    player.setCurrentPage = '/question';
-    player.sendPlayerToServer(server);
-    Navigator.pushNamed(context, player.getCurrentPage);
+    globalPlayer.setCurrentPage = '/question';
+    globalPlayer.sendPlayerToServer(globalServer);
+    Navigator.pushNamed(context, globalPlayer.getCurrentPage);
   }
   
   void startGameUpdateTimer() {
     gameUpdateTimer = Timer.periodic(Duration(milliseconds: 10), (timer) {
       setState(() {});
-      if(player.getCurrentPage == '/question'){
-        Navigator.pushNamed(context, player.getCurrentPage);
+      if(globalPlayer.getCurrentPage == '/question'){
+        Navigator.pushNamed(context, globalPlayer.getCurrentPage);
         dispose();
       }
     });

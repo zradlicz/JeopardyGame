@@ -42,7 +42,7 @@ class Player {
   }
 
   //Convert Player object to JSON format
-  Map<String, dynamic> toJson() {
+  Map<String, dynamic> toJSON() {
     return {
       'name': name,
       'id':id,
@@ -55,7 +55,7 @@ class Player {
   }
 
   //Create Player object from JSON map
-  static Player fromJson(Map<String, dynamic> json) {
+  static Player fromJSON(Map<String, dynamic> json) {
     return Player(
       name: json['name'] ?? '', // Default value in case 'name' is null
       id: json['id'] ?? '',
@@ -76,6 +76,6 @@ class Player {
     if (server.reconnectNeeded) {
           server.reconnect();
         }
-      server.sendToServer(json.encode(toJson()));
+      server.sendToServer(json.encode(toJSON()));
   }
 }

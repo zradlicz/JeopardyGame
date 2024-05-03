@@ -31,6 +31,63 @@ class Game {
         currentQuestion: this.currentQuestion
       };
     }
+
+    updateGameFromPlayer(newPlayer){
+      //compare current player with id to player passed in
+      let oldPlayer;
+      this.players.forEach(currentPlayer => {
+        if(currentPlayer.id === newPlayer.id){
+          oldPlayer = currentPlayer;
+        }
+      })
+      
+      //if currentpage is different
+      if(oldPlayer.currentPage !== newPlayer.currentPage){
+        this.handlePageChange(oldPlayer, newPlayer);
+        oldPlayer.update(newPlayer);
+      }
+      
+      //if answer is different
+      if(oldPlayer.answer !== newPlayer.answer){
+        this.handleAnswerChange();
+        oldPlayer.update(newPlayer);
+      }
+      
+      //if selectedquestion is different
+      if(oldPlayer.selectedQuestion !== newPlayer.selectedQuestion){
+        this.handleSelectedQuestionChange();
+        oldPlayer.update(newPlayer);
+      }
+      
+      //if buzzzStatus is different
+      if(oldPlayer.buzzStatus !== newPlayer.buzzStatus){
+        this.handleBuzzStatusChange();
+        oldPlayer.update(newPlayer);
+      }
+      if(DEBUG){console.log("Updated Game from client message.")};
+    }
+
+    
+    handlePageChange(newPlayer){
+      if(newPlayer.currentPage === '/question'){
+        this.players.forEach(currentPlayer => {
+            currentPlayer.currentPage = '/question';
+            console.log("moved player to question")
+        })
+      }
+    }
+
+    handleAnswerChange(){
+
+    }
+
+    handleSelectedQuestionChange(){
+
+    }
+
+    handleBuzzStatusChange(){
+
+    }
   }
 
   class Board {

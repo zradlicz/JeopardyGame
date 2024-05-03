@@ -39,7 +39,7 @@ class _AnswerPageState extends State<AnswerPage> {
             children: [
               Center(
                 child: Text(
-                    game.currentQuestion.question, // Add your text here
+                    globalGame.currentQuestion.question, // Add your text here
                     style: TextStyle(
                         fontSize: 32,
                         fontWeight: FontWeight.bold,
@@ -87,22 +87,22 @@ class _AnswerPageState extends State<AnswerPage> {
 
   _goHome(){
     Navigator.of(context).popUntil((route) => route.isFirst); // Navigate back to the landing page
-    player.setCurrentPage = '/landing';
-    player.setBuzzStatus = false;
+    globalPlayer.setCurrentPage = '/landing';
+    globalPlayer.setBuzzStatus = false;
     dispose();
   }
   void _submitAnswer() {
     final userAnswer = _answerController.text;
     if (userAnswer.isNotEmpty) {
-      player.setAnswer = userAnswer;
-      player.sendPlayerToServer(server);
+      globalPlayer.setAnswer = userAnswer;
+      globalPlayer.sendPlayerToServer(globalServer);
       _answerController.dispose();
     }
   }
 
   void startGameUpdateTimer() {
     gameUpdateTimer = Timer.periodic(Duration(milliseconds: 10), (timer) {
-      if(player.getCurrentPage == '/question'){
+      if(globalPlayer.getCurrentPage == '/question'){
         dispose();
         Navigator.pop(context);
       }
@@ -111,7 +111,7 @@ class _AnswerPageState extends State<AnswerPage> {
 
   @override
   void dispose() {
-    server.dispose();
+    globalServer.dispose();
     gameUpdateTimer.cancel();
     super.dispose();
   }

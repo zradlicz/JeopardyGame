@@ -8,7 +8,15 @@ class Player {
       this.buzzStatus = false;
       this.questionSelection = 0;
     }
-  
+    
+    update(player){
+      this.currentPage = player.currentPage;
+      this.answer = player.answer;
+      this.score = player.score;
+      this.buzzStatus = player.buzzStatus;
+      this.questionSelection = player.questionSelection;
+    }
+
     toJSON() {
       return {
         name: this.name,
