@@ -153,16 +153,25 @@ class _QuestionPageState extends State<QuestionPage> {
   }
 
   void _goHome(){
-    Navigator.of(context).popUntil((route) => route.isFirst); // Navigate back to the landing page
+    Navigator.of(context).pushNamedAndRemoveUntil("/", (route) => false);
     globalPlayer.setCurrentPage = '/landing';
     globalPlayer.setBuzzStatus = false;
     globalServer.dispose();
   }
   void _buzzIn() {
+    if(globalPlayer.alreadyAnswered){
+         // Provide feedback to the user (e.g., show a snackbar or dialog)
+        ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('You already buzzed in on this question!')),
+      );
+      return;
+    }
     globalPlayer.setBuzzStatus = true;
     globalPlayer.setCurrentPage = '/answer';
-    Navigator.pushNamed(context, globalPlayer.getCurrentPage);
+    globalPlayer.alreadyAnswered = true;
+    gameUpdateTimer.cancel();
     globalPlayer.sendPlayerToServer(globalServer);
+    Navigator.pushNamed(context, globalPlayer.getCurrentPage).then(restartTimer);
   }
 
   FutureOr restartTimer(dynamic value){
@@ -175,15 +184,14 @@ class _QuestionPageState extends State<QuestionPage> {
   }
 
   void startGameUpdateTimer() {
-    gameUpdateTimer = Timer.periodic(Duration(milliseconds: 10), (timer) {
+    gameUpdateTimer = Timer.periodic(Duration(milliseconds: 50), (timer) {
       setState(() {});
       if(globalPlayer.getCurrentPage == '/wait'){
-        Navigator.pushNamed(context, globalPlayer.getCurrentPage).then(restartTimer);
         gameUpdateTimer.cancel();
+        Navigator.pushNamed(context, '/wait').then(restartTimer);
       }
     });
   }
-
 
   @override
   void dispose() {

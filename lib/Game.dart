@@ -14,6 +14,20 @@ class Game {
     return names;
   }
 
+  int getPlayerCount(){
+    return players.length;
+  }
+
+  int getNumberofPlayersAnswered(){
+    int count = 0;
+    for (Player player in players){
+      if(player.alreadyAnswered){
+        count++;
+      }
+    }
+    return count;
+  }
+
   //return a list of all the players names and scores
   List<String> getPlayerNamesWithScores() {
     return players.map((player) => '${player.name}: ${player.score}').toList();
@@ -37,20 +51,19 @@ class Game {
     return game;
   }
 
-  //update game from server message
-  static updateGameFromServer(String message){
-    
-  }
+
 }
 
 
 
 class Board{
   List<Question> questions = [];
+  List<bool> questionsAnswered = [];
 
   Map<String, dynamic> toJSON() {
     return {
       'questions': questions.map((question) => question.toJSON()).toList(),
+      'questionsAnswered': questionsAnswered,
     };
   }
 
@@ -58,6 +71,7 @@ class Board{
     Board board = Board();
     List<dynamic> questionsJson = json['questions'];
     board.questions = questionsJson.map((questionJson) => Question.fromJSON(questionJson)).toList();
+    board.questionsAnswered = json['questionsAnswered'].cast<bool>();
     return board;
   }
 }

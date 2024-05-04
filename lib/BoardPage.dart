@@ -61,13 +61,13 @@ class _BoardPageState extends State<BoardPage> {
                         ),
                         itemCount: 25,
                         itemBuilder: (BuildContext context, int index) {
-                          //bool questionAnswered = checkIfQuestionAnswered(index);
+                          bool questionAnswered = checkIfQuestionAnswered(index);
                           int pointValue = (index ~/ 5 + 1) * 100; // Calculate point value dynamically
                           return ElevatedButton(
-                            //onPressed: questionAnswered ? null : () => _questionSelected(index),
-                            onPressed: () {_questionSelected(index);},
+                            onPressed: questionAnswered ? null : () => _questionSelected(index),
+                            //onPressed: () {_questionSelected(index);},
                             style: ButtonStyle(
-                              backgroundColor: MaterialStateProperty.all<Color>(Colors.blue),
+                              backgroundColor: MaterialStateProperty.all<Color>(questionAnswered ? Colors.grey:Colors.blue),
                               padding: MaterialStateProperty.all<EdgeInsetsGeometry>(
                                 EdgeInsets.all(16), // Adjust padding as needed
                               ),
@@ -161,12 +161,11 @@ class _BoardPageState extends State<BoardPage> {
   }
 
   bool checkIfQuestionAnswered(int index) {
-    // Implement your logic to check if question at index is answered
-    return false; // Placeholder, replace with actual logic
+    return globalGame.gameBoard.questionsAnswered[index];
   }
 
   void _goHome() {
-    Navigator.of(context).popUntil((route) => route.isFirst);
+    Navigator.of(context).pushNamedAndRemoveUntil("/", (route) => false);
     globalPlayer.currentPage = '/landing';
     globalPlayer.buzzStatus = false;
     globalServer.dispose();
@@ -174,21 +173,33 @@ class _BoardPageState extends State<BoardPage> {
 
   void _questionSelected(int index) {
     // Provide feedback to the user (e.g., show a snackbar or dialog)
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Question $index selected!')),
-    );
+    // ScaffoldMessenger.of(context).showSnackBar(
+    //   SnackBar(content: Text('Question $index selected!')),
+    // );
 
     // Update player's current page and send data to server
     globalPlayer.currentPage = '/question';
     globalPlayer.questionSelection = index;
     globalPlayer.sendPlayerToServer(globalServer);
-    Navigator.pushNamed(context, globalPlayer.getCurrentPage);
+    gameUpdateTimer.cancel();
+    Navigator.pushNamed(context, globalPlayer.getCurrentPage).then(restartTimer);
+  }
+
+  FutureOr restartTimer(dynamic value){
+    setState((){
+      if(!gameUpdateTimer.isActive)
+      {
+        startGameUpdateTimer();
+      }
+    });
   }
 
   void startGameUpdateTimer() {
-    gameUpdateTimer = Timer.periodic(Duration(seconds: 2), (timer) {
+    gameUpdateTimer = Timer.periodic(Duration(milliseconds: 10), (timer) {
+      setState(() {});
       if (globalPlayer.currentPage == '/question') {
-        setState(() {});
+        gameUpdateTimer.cancel();
+        Navigator.pushNamed(context, globalPlayer.getCurrentPage).then(restartTimer);
       }
     });
   }

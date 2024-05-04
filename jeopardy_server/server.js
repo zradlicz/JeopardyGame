@@ -3,7 +3,8 @@ const Player = require('./player');
 const {Game, Board, Question} = require('./game');
 const WebSocket = require("ws");
 
-const DEBUG = true;
+const DEBUG = false;
+
 
 class JeopardyServer {
   constructor() {
@@ -11,6 +12,19 @@ class JeopardyServer {
     this.wss = new WebSocket.Server({ port: 5000 });
     if(DEBUG){console.log("Jeopardy Server Instantiated.")};
   }
+
+  async generateQuestions(){
+    while(this.jeopardyGame.gameBoard.questions.length < 25){
+      const chatCompletion = await main();
+        try {
+            const question = JSON.parse(chatCompletion.choices[0].message.content);
+            console.log("Generated question:", question);
+            this.jeopardyGame.gameBoard.addQuestion(question);
+        } catch (error) {
+            console.error("Error generating question:", error);
+        }
+  }
+}
 
   //method to handle player connecting to server
   handlePlayerConnection(ws){
@@ -88,115 +102,7 @@ class JeopardyServer {
 
 let js = new JeopardyServer();
 
-const triviaData = [
-  {
-    question: "What is the capital of France?",
-    answer: "Paris"
-  },
-  {
-    question: "Who painted the Mona Lisa?",
-    answer: "Leonardo da Vinci"
-  },
-  {
-    question: "What is the largest mammal on Earth?",
-    answer: "Blue whale"
-  },
-  {
-    question: "What is the longest river in the world?",
-    answer: "Nile River"
-  },
-  {
-    question: "What is the largest desert in the world?",
-    answer: "Sahara Desert"
-  },
-  {
-    question: "What is the smallest planet in our solar system?",
-    answer: "Mercury"
-  },
-  {
-    question: "Who wrote the play 'Hamlet'?",
-    answer: "William Shakespeare"
-  },
-  {
-    question: "What is the chemical symbol for gold?",
-    answer: "Au"
-  },
-  {
-    question: "Who invented the telephone?",
-    answer: "Alexander Graham Bell"
-  },
-  {
-    question: "What is the capital of Japan?",
-    answer: "Tokyo"
-  },
-  {
-    question: "What is the largest ocean on Earth?",
-    answer: "Pacific Ocean"
-  },
-  {
-    question: "What is the highest mountain in Africa?",
-    answer: "Mount Kilimanjaro"
-  },
-  {
-    question: "What is the largest moon of Saturn?",
-    answer: "Titan"
-  },
-  {
-    question: "What is the chemical symbol for water?",
-    answer: "H2O"
-  },
-  {
-    question: "Who discovered penicillin?",
-    answer: "Alexander Fleming"
-  },
-  {
-    question: "What is the national flower of England?",
-    answer: "Rose"
-  },
-  {
-    question: "Who wrote 'The Great Gatsby'?",
-    answer: "F. Scott Fitzgerald"
-  },
-  {
-    question: "What is the capital of Australia?",
-    answer: "Canberra"
-  },
-  {
-    question: "What is the largest bird in the world?",
-    answer: "Ostrich"
-  },
-  {
-    question: "What is the chemical symbol for oxygen?",
-    answer: "O"
-  },
-  {
-    question: "Who discovered the theory of relativity?",
-    answer: "Albert Einstein"
-  },
-  {
-    question: "What is the largest island in the Mediterranean Sea?",
-    answer: "Sicily"
-  },
-  {
-    question: "What is the largest planet in our solar system?",
-    answer: "Jupiter"
-  },
-  {
-    question: "Who wrote the play 'Romeo and Juliet'?",
-    answer: "William Shakespeare"
-  },
-  {
-    question: "What is the tallest mountain in the world?",
-    answer: "Mount Everest"
-  }
-];
-
-triviaData.forEach(data => {
-  const question = Question.fromJSON(data);
-  js.jeopardyGame.gameBoard.addQuestion(question);
-});
-
-js.jeopardyGame.setRandomQuestion();
+js.generateQuestions();
 
 js.wss.on("connection", ws => {
   js.handlePlayerConnection(ws);

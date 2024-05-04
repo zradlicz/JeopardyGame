@@ -57,30 +57,28 @@ class Game {
         }
       })
       
+      //if buzzzStatus is different
+      if(oldPlayer.buzzStatus !== newPlayer.buzzStatus){
+        this.handleBuzzStatusChange(newPlayer);
+        oldPlayer.update(newPlayer);
+        if(DEBUG){console.log("Handled buzz status change.")};
+      }
+
       //if currentpage is different
       if(oldPlayer.currentPage !== newPlayer.currentPage){
         this.handlePageChange(newPlayer);
         oldPlayer.update(newPlayer);
+        if(DEBUG){console.log("Handled page change.")};
       }
       
       //if answer is different
       if(oldPlayer.answer !== newPlayer.answer){
         this.handleAnswerChange(newPlayer);
         oldPlayer.update(newPlayer);
+        if(DEBUG){console.log("Handled answer change.")};
       }
-      
-      //if selectedquestion is different
-      if(oldPlayer.selectedQuestion !== newPlayer.selectedQuestion){
-        this.handleSelectedQuestionChange();
-        oldPlayer.update(newPlayer);
-      }
-      
-      //if buzzzStatus is different
-      if(oldPlayer.buzzStatus !== newPlayer.buzzStatus){
-        this.handleBuzzStatusChange(newPlayer);
-        oldPlayer.update(newPlayer);
-      }
-      if(DEBUG){console.log("Updated Game from client message.")};
+
+      console.log(newPlayer);
     }
 
     
@@ -92,15 +90,12 @@ class Game {
           }
         })
       }else if(newPlayer.currentPage === '/question'){
-        console.log(newPlayer);
-        console.log(newPlayer.questionSelection);
         this.currentQuestion = this.gameBoard.questions[newPlayer.questionSelection];
         this.players.forEach(currentPlayer => {
           if(currentPlayer.id !== newPlayer.id){
             currentPlayer.currentPage = '/question';
           }
         })
-      if(DEBUG){console.log("Handled page change.")};
     }
   }
 
@@ -109,31 +104,33 @@ class Game {
       if(score === 2){
         this.players.forEach(currentPlayer => {
           currentPlayer.currentPage = "/board"
+          currentPlayer.alreadyAnswered = false;
           //game.generateQuestion();
         });
         newPlayer.score+=2;
         newPlayer.alreadyAnswered = false;
+        this.gameBoard.markQuestionsAnswered(newPlayer.questionSelection);
         newPlayer.currentPage = '/board';
-        this.setRandomQuestion();
       }else if(score === 1){
         this.players.forEach(currentPlayer => {
           currentPlayer.currentPage = "/board"
+          currentPlayer.alreadyAnswered = false;
           //game.generateQuestion();
         });
         newPlayer.score+=1;
         newPlayer.alreadyAnswered = false;
+        this.gameBoard.markQuestionsAnswered(newPlayer.questionSelection);
         newPlayer.currentPage = '/board';
-        this.setRandomQuestion();
       }else{
         this.players.forEach(currentPlayer => {
           currentPlayer.currentPage = "/question"
         });
         newPlayer.score-=1;
         newPlayer.currentPage = '/question';
+        newPlayer.alreadyAnswered = true;
     }
     newPlayer.buzzStatus = false;
     newPlayer.answer = '';
-    if(DEBUG){console.log("Handled answer change.")};
   }
 
     handleSelectedQuestionChange(newPlayer){
@@ -150,7 +147,7 @@ class Game {
           newPlayer.buzzStatus = true;
         }
     });
-    if(DEBUG){console.log("Handled buzz status change.")};
+    
   }
   
 }
@@ -158,11 +155,18 @@ class Game {
   class Board {
     constructor() {
       this.questions = [];
+      this.questionsAnswered = [];
     }
 
     addQuestion(question){
       this.questions.push(question);
+      this.questionsAnswered.push(false);
       if(DEBUG){console.log("Added question to board")};
+    }
+
+    markQuestionsAnswered(index){
+      this.questionsAnswered[index] = true;
+      if(DEBUG){console.log("Marked question as answered.")};
     }
   }
 

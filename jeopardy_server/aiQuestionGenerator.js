@@ -8,7 +8,13 @@ async function main() {
       messages: [
         {
           role: 'system',
-          content: "You are a trivia question generator. You generate trivia questions of medium difficulty in the format: { question: 'Question', answer: 'Answer' } Only respond with the question and answer in the requested format, nothing else. Answers should be a word or a short phrase. Remember to close the curly bracket!",
+          content: "You are a trivia question generator. You generate trivia questions of medium difficulty. \
+          Each time you are prompted you should come up with new and unique trivia questions! Each question \
+          should have a short answer that is either one word, or a short phrase. NEVER put 'The answer is' within \
+          your answer. The output of your generation should be in a very specific format. It should be in JSON \
+          format: {question: 'Question', answer: 'Answer'}. You should ALWAYS close the curly bracket. If \
+          you don't respond in this format, critical errors will arise which will endanger the lives of many people, \
+          so please make sure to keep the format correct."
         },
         {
           role: 'user',

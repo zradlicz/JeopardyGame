@@ -105,6 +105,7 @@ class _StartPageState extends State<StartPage> {
     globalPlayer.setCurrentPage = '/board';
     globalPlayer.sendPlayerToServer(globalServer);
     Navigator.pushNamed(context, globalPlayer.getCurrentPage);
+    dispose();
   }
   
   void startGameUpdateTimer() {

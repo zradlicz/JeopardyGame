@@ -86,14 +86,14 @@ class _AnswerPageState extends State<AnswerPage> {
   }
 
   _goHome(){
-    Navigator.of(context).popUntil((route) => route.isFirst); // Navigate back to the landing page
+    Navigator.of(context).pushNamedAndRemoveUntil("/", (route) => false);
     globalPlayer.setCurrentPage = '/landing';
     globalPlayer.setBuzzStatus = false;
     dispose();
   }
   void _submitAnswer() {
     final userAnswer = _answerController.text;
-    if (userAnswer.isNotEmpty && !globalPlayer.alreadyAnswered) {
+    if (userAnswer.isNotEmpty) {
       globalPlayer.setAnswer = userAnswer;
       globalPlayer.alreadyAnswered = true;
       globalPlayer.sendPlayerToServer(globalServer);
@@ -103,9 +103,12 @@ class _AnswerPageState extends State<AnswerPage> {
   void startGameUpdateTimer() {
     gameUpdateTimer = Timer.periodic(Duration(milliseconds: 10), (timer) {
       if(globalPlayer.getCurrentPage == '/board'){
-        Navigator.pop(context);
-        Navigator.pop(context);
+        Navigator.of(context).pushNamedAndRemoveUntil("/board", (route) => false);
         dispose();   
+      }
+      if(globalPlayer.getCurrentPage == '/question'){
+        Navigator.pop(context);
+        dispose();
       }
     });
   }
