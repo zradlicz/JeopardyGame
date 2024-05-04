@@ -1,4 +1,5 @@
 const main = require ('./aiQuestionGenerator.js');
+const calculateScore = require('./answerChecking.js');
 
 let DEBUG = true;
 
@@ -8,7 +9,22 @@ class Game {
       this.gameBoard = new Board();
       this.currentQuestion = new Question();
     }
+    
+    setRandomQuestion() {
+      const questions = this.gameBoard.questions;
+      if (questions.length === 0) {
+        console.log("No questions available in the board.");
+        return;
+      }
   
+      // Get a random index within the questions array
+      const randomIndex = Math.floor(Math.random() * questions.length);
+  
+      // Set the current question to the randomly selected question
+      this.currentQuestion = questions[randomIndex];
+      if(DEBUG){console.log("Random question set:", this.currentQuestion.question);}
+    }
+
     addPlayer(player) {
       this.players.push(player);
       if(DEBUG){console.log("Added player to game.")};
@@ -43,13 +59,13 @@ class Game {
       
       //if currentpage is different
       if(oldPlayer.currentPage !== newPlayer.currentPage){
-        this.handlePageChange(oldPlayer, newPlayer);
+        this.handlePageChange(newPlayer);
         oldPlayer.update(newPlayer);
       }
       
       //if answer is different
       if(oldPlayer.answer !== newPlayer.answer){
-        this.handleAnswerChange();
+        this.handleAnswerChange(newPlayer);
         oldPlayer.update(newPlayer);
       }
       
@@ -61,7 +77,7 @@ class Game {
       
       //if buzzzStatus is different
       if(oldPlayer.buzzStatus !== newPlayer.buzzStatus){
-        this.handleBuzzStatusChange();
+        this.handleBuzzStatusChange(newPlayer);
         oldPlayer.update(newPlayer);
       }
       if(DEBUG){console.log("Updated Game from client message.")};
@@ -69,26 +85,75 @@ class Game {
 
     
     handlePageChange(newPlayer){
-      if(newPlayer.currentPage === '/question'){
+      if(newPlayer.currentPage === '/board'){
         this.players.forEach(currentPlayer => {
-            currentPlayer.currentPage = '/question';
-            console.log("moved player to question")
+          if(currentPlayer.id !== newPlayer.id){
+            currentPlayer.currentPage = '/board';
+          }
         })
-      }
-    }
-
-    handleAnswerChange(){
-
-    }
-
-    handleSelectedQuestionChange(){
-
-    }
-
-    handleBuzzStatusChange(){
-
+      }else if(newPlayer.currentPage === '/question'){
+        console.log(newPlayer);
+        console.log(newPlayer.questionSelection);
+        this.currentQuestion = this.gameBoard.questions[newPlayer.questionSelection];
+        this.players.forEach(currentPlayer => {
+          if(currentPlayer.id !== newPlayer.id){
+            currentPlayer.currentPage = '/question';
+          }
+        })
+      if(DEBUG){console.log("Handled page change.")};
     }
   }
+
+    handleAnswerChange(newPlayer){
+      let score = calculateScore(newPlayer.answer, this.currentQuestion.answer) 
+      if(score === 2){
+        this.players.forEach(currentPlayer => {
+          currentPlayer.currentPage = "/board"
+          //game.generateQuestion();
+        });
+        newPlayer.score+=2;
+        newPlayer.alreadyAnswered = false;
+        newPlayer.currentPage = '/board';
+        this.setRandomQuestion();
+      }else if(score === 1){
+        this.players.forEach(currentPlayer => {
+          currentPlayer.currentPage = "/board"
+          //game.generateQuestion();
+        });
+        newPlayer.score+=1;
+        newPlayer.alreadyAnswered = false;
+        newPlayer.currentPage = '/board';
+        this.setRandomQuestion();
+      }else{
+        this.players.forEach(currentPlayer => {
+          currentPlayer.currentPage = "/question"
+        });
+        newPlayer.score-=1;
+        newPlayer.currentPage = '/question';
+    }
+    newPlayer.buzzStatus = false;
+    newPlayer.answer = '';
+    if(DEBUG){console.log("Handled answer change.")};
+  }
+
+    handleSelectedQuestionChange(newPlayer){
+
+
+    }
+
+    handleBuzzStatusChange(newPlayer){
+      this.players.forEach(currentPlayer => {
+        if(currentPlayer.id !== newPlayer.id){
+          currentPlayer.currentPage = '/wait';
+        }else{
+          newPlayer.currentPage = '/answer';
+          newPlayer.buzzStatus = true;
+        }
+    });
+    if(DEBUG){console.log("Handled buzz status change.")};
+  }
+  
+}
 
   class Board {
     constructor() {
@@ -115,4 +180,4 @@ class Game {
     }
   }
   
-  module.exports = Game;
+  module.exports = {Game, Board, Question};

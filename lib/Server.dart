@@ -50,8 +50,8 @@ class Server {
       print("Handled server game update:");
       print("New player:");
       print(json.encode(globalPlayer.toJSON()));
-      print("New Game:");
-      print(json.encode(globalGame.toJSON()));
+      //print("New Game:");
+      //print(json.encode(globalGame.toJSON()));
       }
 
   }

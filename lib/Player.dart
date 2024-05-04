@@ -11,6 +11,7 @@ class Player {
   int score;
   bool buzzStatus;
   int questionSelection;
+  bool alreadyAnswered;
 
   //Construct player
   Player({this.name = '', 
@@ -19,7 +20,8 @@ class Player {
           this.answer = '', 
           this.score = 0, 
           this.buzzStatus = false,
-          this.questionSelection = 0});
+          this.questionSelection = 0,
+          this.alreadyAnswered = false});
 
   set setName(String name){
     this.name = name;
@@ -50,7 +52,8 @@ class Player {
       'answer': answer,
       'score': score,
       'buzzStatus': buzzStatus,
-      'questionSelection': questionSelection
+      'questionSelection': questionSelection,
+      'alreadyAnswered': alreadyAnswered
     };
   }
 
@@ -64,6 +67,7 @@ class Player {
       score: json['score'] ?? 0, // Default value in case 'score' is null
       buzzStatus: json['buzzStatus'] ?? false, // Default value in case 'buzzStatus' is null
       questionSelection: json['questionSelection'],
+      alreadyAnswered: json['alreadyAnswered']
     );
   }
   //update Player from game

@@ -93,26 +93,27 @@ class _AnswerPageState extends State<AnswerPage> {
   }
   void _submitAnswer() {
     final userAnswer = _answerController.text;
-    if (userAnswer.isNotEmpty) {
+    if (userAnswer.isNotEmpty && !globalPlayer.alreadyAnswered) {
       globalPlayer.setAnswer = userAnswer;
+      globalPlayer.alreadyAnswered = true;
       globalPlayer.sendPlayerToServer(globalServer);
-      _answerController.dispose();
     }
   }
 
   void startGameUpdateTimer() {
     gameUpdateTimer = Timer.periodic(Duration(milliseconds: 10), (timer) {
-      if(globalPlayer.getCurrentPage == '/question'){
-        dispose();
+      if(globalPlayer.getCurrentPage == '/board'){
         Navigator.pop(context);
+        Navigator.pop(context);
+        dispose();   
       }
     });
   }
 
   @override
   void dispose() {
-    globalServer.dispose();
     gameUpdateTimer.cancel();
+    _answerController.dispose();
     super.dispose();
   }
 }

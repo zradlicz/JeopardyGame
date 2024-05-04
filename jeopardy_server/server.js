@@ -1,10 +1,9 @@
-const calculateScore = require ('./answerChecking.js');
 const main = require('./aiQuestionGenerator.js');
 const Player = require('./player');
-const Game = require('./game');
+const {Game, Board, Question} = require('./game');
 const WebSocket = require("ws");
 
-const DEBUG = false;
+const DEBUG = true;
 
 class JeopardyServer {
   constructor() {
@@ -46,7 +45,10 @@ class JeopardyServer {
     if(DEBUG){console.log("Recieved client message:", playerData)};
 
     if(this.playerIsInGame(ws.id)){
-      this.jeopardyGame.updateGameFromPlayer(Player.fromJSON(playerData));
+      //console.log(Player.fromJSON(playerData));
+      let newPlayer = Player.fromJSON(playerData);
+      newPlayer.id = ws.id;
+      this.jeopardyGame.updateGameFromPlayer(newPlayer);
       this.sendGameToClients();
     }
     else{
@@ -86,6 +88,116 @@ class JeopardyServer {
 
 let js = new JeopardyServer();
 
+const triviaData = [
+  {
+    question: "What is the capital of France?",
+    answer: "Paris"
+  },
+  {
+    question: "Who painted the Mona Lisa?",
+    answer: "Leonardo da Vinci"
+  },
+  {
+    question: "What is the largest mammal on Earth?",
+    answer: "Blue whale"
+  },
+  {
+    question: "What is the longest river in the world?",
+    answer: "Nile River"
+  },
+  {
+    question: "What is the largest desert in the world?",
+    answer: "Sahara Desert"
+  },
+  {
+    question: "What is the smallest planet in our solar system?",
+    answer: "Mercury"
+  },
+  {
+    question: "Who wrote the play 'Hamlet'?",
+    answer: "William Shakespeare"
+  },
+  {
+    question: "What is the chemical symbol for gold?",
+    answer: "Au"
+  },
+  {
+    question: "Who invented the telephone?",
+    answer: "Alexander Graham Bell"
+  },
+  {
+    question: "What is the capital of Japan?",
+    answer: "Tokyo"
+  },
+  {
+    question: "What is the largest ocean on Earth?",
+    answer: "Pacific Ocean"
+  },
+  {
+    question: "What is the highest mountain in Africa?",
+    answer: "Mount Kilimanjaro"
+  },
+  {
+    question: "What is the largest moon of Saturn?",
+    answer: "Titan"
+  },
+  {
+    question: "What is the chemical symbol for water?",
+    answer: "H2O"
+  },
+  {
+    question: "Who discovered penicillin?",
+    answer: "Alexander Fleming"
+  },
+  {
+    question: "What is the national flower of England?",
+    answer: "Rose"
+  },
+  {
+    question: "Who wrote 'The Great Gatsby'?",
+    answer: "F. Scott Fitzgerald"
+  },
+  {
+    question: "What is the capital of Australia?",
+    answer: "Canberra"
+  },
+  {
+    question: "What is the largest bird in the world?",
+    answer: "Ostrich"
+  },
+  {
+    question: "What is the chemical symbol for oxygen?",
+    answer: "O"
+  },
+  {
+    question: "Who discovered the theory of relativity?",
+    answer: "Albert Einstein"
+  },
+  {
+    question: "What is the largest island in the Mediterranean Sea?",
+    answer: "Sicily"
+  },
+  {
+    question: "What is the largest planet in our solar system?",
+    answer: "Jupiter"
+  },
+  {
+    question: "Who wrote the play 'Romeo and Juliet'?",
+    answer: "William Shakespeare"
+  },
+  {
+    question: "What is the tallest mountain in the world?",
+    answer: "Mount Everest"
+  }
+];
+
+triviaData.forEach(data => {
+  const question = Question.fromJSON(data);
+  js.jeopardyGame.gameBoard.addQuestion(question);
+});
+
+js.jeopardyGame.setRandomQuestion();
+
 js.wss.on("connection", ws => {
   js.handlePlayerConnection(ws);
   
@@ -97,185 +209,3 @@ js.wss.on("connection", ws => {
       js.handlePlayerDisconnection(ws)
     })
   });
-
-// const triviaQuestions = [];
-
-// async function generateQuestion() {
-//     while (triviaQuestions.length < 3) {
-//         const chatCompletion = await main();
-//         try {
-//             const question = JSON.parse(chatCompletion.choices[0].message.content);
-//             console.log("Generated question:", question);
-//             triviaQuestions.push(question);
-//         } catch (error) {
-//             console.error("Error generating question:", error);
-//         }
-//     }
-// }
-
-// // Refill questions if less than 5
-// function refillQuestionsIfNeeded() {
-//     if(game.currentQuestion === ''){
-//       game.setRandomQuestion(triviaQuestions);
-//     }
-//     //console.log(triviaQuestions);
-//     if (triviaQuestions.length < 2) {
-//         generateQuestion();
-//     }
-// }
-
-// // Remove answered question
-// function removeAnsweredQuestion(question) {
-//     const index = triviaQuestions.indexOf(question);
-//     if (index !== -1) {
-//         triviaQuestions.splice(index, 1);
-//         console.log("Removed answered question from the list.");
-//     }
-// }
-
-// // Run generateQuestion continuously
-// generateQuestion();
-
-// // Set interval to check and refill questions
-// setInterval(refillQuestionsIfNeeded, 1000); // Check every 30 seconds
-
-// let game = new Game();
-
-// //game.generateQuestion();
-
-// wss.on("connection", ws => {
-  
-//   handlePlayerConnection(ws);
-
-//   ws.on("message", message => {
-//     handleIncomingClientMessage(ws, message)
-//   });
-
-//   ws.on("close", () => {
-//     handlePlayerDisconnection(ws)
-//   })
-// });
-
-// function handlePlayerConnection(ws)
-// {
-//   ws.id = Date.now().toString(); // Assign a unique ID to each WebSocket connection
-//   console.log("New client connected:", ws.id);
-// }
-
-// function handleIncomingClientMessage(ws, message)
-// {
-//   console.log("Received message from client:", message.toString());
-//     let data;
-//     try {
-//       data = JSON.parse(message);
-//     } catch (error) {
-//       console.error("Error parsing JSON:", error);
-//       return; // Skip processing if the message is not valid JSON
-//     }
-//     addPlayerFlag = true;
-//     game.players.forEach(currentPlayer => {
-//       if(currentPlayer.id === ws.id){
-//         addPlayerFlag = false;
-//       }
-//     })
-    
-//     if(addPlayerFlag){
-//       player = Player.fromJSON(data);
-//       player.playerName = data.name;
-//       player.id = ws.id;
-//       game.addPlayer(player);
-//       console.log("Added player:", player.playerName, player.id);
-//       console.log("Current game:", game)
-//       wss.clients.forEach(client => {
-//         if (client.readyState === WebSocket.OPEN) {
-//           console.log("Sending game state to clients:", game.toJSON());
-//           client.send(JSON.stringify(game.toJSON()));
-//         }
-//       });
-//     }
-//     else if(data.answer !== ''){
-//       console.log("got answer from client");
-//       score = calculateScore(data.answer, game.currentQuestion.answer) 
-//       if(score === 2){
-//         game.players.forEach(currentPlayer => {
-//           currentPlayer.currentPage = "question"
-//           removeAnsweredQuestion(game.currentQuestion);
-//           game.setRandomQuestion(triviaQuestions);
-//           //game.generateQuestion();
-//           if(currentPlayer.id === ws.id){
-//             currentPlayer.incrementScore();
-//             currentPlayer.incrementScore();
-//           }
-//         });
-//       }else if(score === 1){
-//         game.players.forEach(currentPlayer => {
-//           currentPlayer.currentPage = "question"
-//           removeAnsweredQuestion(game.currentQuestion);
-//           game.setRandomQuestion(triviaQuestions);
-//           //game.generateQuestion();
-//           if(currentPlayer.id === ws.id){
-//             currentPlayer.incrementScore();
-//           }
-//         });
-//       }else{
-//         game.players.forEach(currentPlayer => {
-//           currentPlayer.currentPage = "question"
-//           if(currentPlayer.id === ws.id){
-//             currentPlayer.decrementScore();
-//           }
-//         });
-//       }
-//       wss.clients.forEach(client => {
-//         if (client.readyState === WebSocket.OPEN) {
-//           console.log("Sending game state to clients:", game.toJSON());
-//           client.send(JSON.stringify(game.toJSON()));
-//         }
-//       });
-//     }
-//     else if(data.buzzStatus){
-//       game.players.forEach(currentPlayer => {
-//         if(currentPlayer.id !== ws.id){
-//           currentPlayer.currentPage = 'wait';
-//         }
-//         else{
-//           currentPlayer.currentPage = 'answer';
-//           currentPlayer.buzzStatus = true;
-//         }
-//       });
-//       wss.clients.forEach(client => {
-//         if (client.readyState === WebSocket.OPEN) {
-//           console.log("Sending game state to clients:", game.toJSON());
-//           client.send(JSON.stringify(game.toJSON()));
-//         }
-//       });
-//     }
-//     else{
-//       game.players.forEach(currentPlayer => {
-//         currentPlayer.currentPage = data.currentPage;
-//       });
-//       wss.clients.forEach(client => {
-//         if (client.readyState === WebSocket.OPEN) {
-//           console.log("Sending game state to clients:", game.toJSON());
-//           client.send(JSON.stringify(game.toJSON()));
-//         }
-//       });
-//     }
-// }
-
-// function handlePlayerDisconnection(ws)
-// {
-//   game.players.forEach(currentPlayer => {
-//     if(currentPlayer.id === ws.id){
-//       player = currentPlayer;
-//     }
-//   })
-//   game.removePlayer(player.id)
-//   console.log("Removed player:", player.playerName);
-//   console.log("Current game:", game)
-//   wss.clients.forEach(client => {
-//     if (client.readyState === WebSocket.OPEN) {
-//       console.log("Sending game state to clients:", game.toJSON());
-//       client.send(JSON.stringify(game.toJSON()));
-//     }
-//   });
-// }

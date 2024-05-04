@@ -57,7 +57,7 @@ class _WaitPageState extends State<WaitPage> with SingleTickerProviderStateMixin
   void startPageUpdate() {
     // Start a timer to update playerList every 2 seconds
     updatePageTimer = Timer.periodic(Duration(milliseconds: 10), (timer) {
-      if(globalPlayer.currentPage == 'question'){
+      if(globalPlayer.currentPage == '/question'){
         dispose();
         Navigator.pop(context);
       }

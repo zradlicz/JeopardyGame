@@ -7,6 +7,7 @@ class Player {
       this.score = 0;
       this.buzzStatus = false;
       this.questionSelection = 0;
+      this.alreadyAnswered = false;
     }
     
     update(player){
@@ -15,6 +16,7 @@ class Player {
       this.score = player.score;
       this.buzzStatus = player.buzzStatus;
       this.questionSelection = player.questionSelection;
+      this.alreadyAnswered = player.alreadyAnswered;
     }
 
     toJSON() {
@@ -25,7 +27,8 @@ class Player {
         answer: this.answer,
         score: this.score,
         buzzStatus: this.buzzStatus,
-        questionSelection: this.questionSelection
+        questionSelection: this.questionSelection,
+        alreadyAnswered: this.alreadyAnswered
       };
     }
   
@@ -38,6 +41,7 @@ class Player {
       player.score = json.score;
       player.buzzStatus = json.buzzStatus;
       player.questionSelection = json.questionSelection;
+      player.alreadyAnswered = json.alreadyAnswered;
       return player;
     }
   }

@@ -1,0 +1,201 @@
+import 'package:flutter/material.dart';
+import 'main.dart';
+import 'dart:async'; // Import dart:async for Timer
+
+class BoardPage extends StatefulWidget {
+  const BoardPage({Key? key}) : super(key: key);
+
+  @override
+  _BoardPageState createState() => _BoardPageState();
+}
+
+class _BoardPageState extends State<BoardPage> {
+  late Timer gameUpdateTimer;
+  bool isDrawerOpen = false;
+
+  @override
+  void initState() {
+    super.initState();
+    startGameUpdateTimer(); // Start the timer to update player list
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Colors.blueGrey[900], // Background color
+      appBar: AppBar(
+        leading: IconButton(
+          icon: Icon(Icons.home_filled),
+          onPressed: () {
+            _goHome();
+          },
+        ),
+      ),
+      body: Stack(
+        children: [
+          Center(
+            child: GestureDetector(
+              onTap: () {
+                if (!isDrawerOpen) {
+                  setState(() {
+                    isDrawerOpen = true;
+                  });
+                }
+              },
+              child: Padding(
+                padding: const EdgeInsets.all(20.0),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      'Select a question:',
+                      style: TextStyle(fontSize: 24, color: Colors.white),
+                    ),
+                    SizedBox(height: 20),
+                    Expanded(
+                      child: GridView.builder(
+                        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: 5,
+                          crossAxisSpacing: 10,
+                          mainAxisSpacing: 10,
+                        ),
+                        itemCount: 25,
+                        itemBuilder: (BuildContext context, int index) {
+                          //bool questionAnswered = checkIfQuestionAnswered(index);
+                          int pointValue = (index ~/ 5 + 1) * 100; // Calculate point value dynamically
+                          return ElevatedButton(
+                            //onPressed: questionAnswered ? null : () => _questionSelected(index),
+                            onPressed: () {_questionSelected(index);},
+                            style: ButtonStyle(
+                              backgroundColor: MaterialStateProperty.all<Color>(Colors.blue),
+                              padding: MaterialStateProperty.all<EdgeInsetsGeometry>(
+                                EdgeInsets.all(16), // Adjust padding as needed
+                              ),
+                              textStyle: MaterialStateProperty.all<TextStyle>(
+                                TextStyle(fontSize: 18), // Adjust font size
+                              ),
+                              shape: MaterialStateProperty.all<OutlinedBorder>(
+                                RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(20),
+                                ),
+                              ),
+                            ),
+                            child: Text(
+                              '$pointValue',
+                              style: TextStyle(fontSize: 18, color: Colors.white),
+                            ),
+                          );
+                        },
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+          Align(
+            alignment: Alignment.bottomCenter,
+            child: GestureDetector(
+              onTap: () {
+                setState(() {
+                  isDrawerOpen = !isDrawerOpen; // Toggle the drawer visibility
+                });
+              },
+              child: Padding(
+                padding: const EdgeInsets.all(10.0),
+                child: Container(
+                  width: 100,
+                  height: 20,
+                  decoration: BoxDecoration(
+                    color: Colors.white, // Color of the bar
+                    borderRadius: BorderRadius.circular(10), // Rounded edges
+                  ),
+                ),
+              ),
+            ),
+          ),
+          if (isDrawerOpen) ...[
+            Positioned(
+              bottom: 50,
+              left: 20,
+              right: 20,
+              child: Container(
+                height: 300,
+                decoration: BoxDecoration(
+                  color: Colors.blueGrey[600],
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: SingleChildScrollView(
+                  child: Column(
+                    children: globalGame.players.map((player) {
+                      return Container(
+                        margin: EdgeInsets.symmetric(vertical: 5),
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(20),
+                          color: Colors.blue[200],
+                        ),
+                        padding: EdgeInsets.all(10),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              player.name,
+                              style: TextStyle(color: Colors.black),
+                            ),
+                            Text(
+                              player.score.toString(),
+                              style: TextStyle(color: Colors.black),
+                            ),
+                          ],
+                        ),
+                      );
+                    }).toList(),
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+
+  bool checkIfQuestionAnswered(int index) {
+    // Implement your logic to check if question at index is answered
+    return false; // Placeholder, replace with actual logic
+  }
+
+  void _goHome() {
+    Navigator.of(context).popUntil((route) => route.isFirst);
+    globalPlayer.currentPage = '/landing';
+    globalPlayer.buzzStatus = false;
+    globalServer.dispose();
+  }
+
+  void _questionSelected(int index) {
+    // Provide feedback to the user (e.g., show a snackbar or dialog)
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('Question $index selected!')),
+    );
+
+    // Update player's current page and send data to server
+    globalPlayer.currentPage = '/question';
+    globalPlayer.questionSelection = index;
+    globalPlayer.sendPlayerToServer(globalServer);
+    Navigator.pushNamed(context, globalPlayer.getCurrentPage);
+  }
+
+  void startGameUpdateTimer() {
+    gameUpdateTimer = Timer.periodic(Duration(seconds: 2), (timer) {
+      if (globalPlayer.currentPage == '/question') {
+        setState(() {});
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    gameUpdateTimer.cancel();
+  }
+}

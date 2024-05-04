@@ -97,18 +97,15 @@ class _QuestionPageState extends State<QuestionPage> {
                 padding: const EdgeInsets.all(10.0),
                 child: Container(
                   width: 100,
-                  height: 5,
-                  color: Colors.white, // Color of the bar
-                  child: Center(
-                    child: Text(
-                      isDrawerOpen ? 'Hide Players' : 'Show Players', // Text based on drawer state
-                      style: TextStyle(color: Colors.white),
-                    ),
+                  height: 20,
+                  decoration: BoxDecoration(
+                    color: Colors.white, // Color of the bar
+                    borderRadius: BorderRadius.circular(10), // Rounded edges
                   ),
                 ),
               ),
             ),
-          ),
+            ),
           if (isDrawerOpen) ...[
             Positioned(
               bottom: 50,
@@ -156,23 +153,32 @@ class _QuestionPageState extends State<QuestionPage> {
   }
 
   void _goHome(){
-    int count = 0;
-    Navigator.of(context).popUntil((_) => count++ >= 2);
+    Navigator.of(context).popUntil((route) => route.isFirst); // Navigate back to the landing page
     globalPlayer.setCurrentPage = '/landing';
     globalPlayer.setBuzzStatus = false;
     globalServer.dispose();
   }
   void _buzzIn() {
     globalPlayer.setBuzzStatus = true;
-    Navigator.pushNamed(context, '/answer');
+    globalPlayer.setCurrentPage = '/answer';
+    Navigator.pushNamed(context, globalPlayer.getCurrentPage);
     globalPlayer.sendPlayerToServer(globalServer);
+  }
+
+  FutureOr restartTimer(dynamic value){
+    setState((){
+      if(!gameUpdateTimer.isActive)
+      {
+        startGameUpdateTimer();
+      }
+    });
   }
 
   void startGameUpdateTimer() {
     gameUpdateTimer = Timer.periodic(Duration(milliseconds: 10), (timer) {
       setState(() {});
       if(globalPlayer.getCurrentPage == '/wait'){
-        Navigator.pushNamed(context, globalPlayer.getCurrentPage);
+        Navigator.pushNamed(context, globalPlayer.getCurrentPage).then(restartTimer);
         gameUpdateTimer.cancel();
       }
     });

@@ -78,7 +78,7 @@ class _StartPageState extends State<StartPage> {
                                 style: TextStyle(color: Colors.black), // Ovular card text color
                               ),
                               Text(
-                                'Score: 0', // Initial score
+                                player.score.toString(), // Initial score
                                 style: TextStyle(color: Colors.black), // Score text color
                               ),
                             ],
@@ -102,7 +102,7 @@ class _StartPageState extends State<StartPage> {
   }
 
   void _startGame() {
-    globalPlayer.setCurrentPage = '/question';
+    globalPlayer.setCurrentPage = '/board';
     globalPlayer.sendPlayerToServer(globalServer);
     Navigator.pushNamed(context, globalPlayer.getCurrentPage);
   }
@@ -110,7 +110,7 @@ class _StartPageState extends State<StartPage> {
   void startGameUpdateTimer() {
     gameUpdateTimer = Timer.periodic(Duration(milliseconds: 10), (timer) {
       setState(() {});
-      if(globalPlayer.getCurrentPage == '/question'){
+      if(globalPlayer.getCurrentPage == '/board'){
         Navigator.pushNamed(context, globalPlayer.getCurrentPage);
         dispose();
       }
