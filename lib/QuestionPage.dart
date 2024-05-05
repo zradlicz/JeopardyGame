@@ -11,12 +11,14 @@ class QuestionPage extends StatefulWidget {
 
 class _QuestionPageState extends State<QuestionPage> {
   late Timer gameUpdateTimer;
+  late Timer buzzTimer;
   bool isDrawerOpen = false;
 
   @override
   void initState() {
     super.initState();
     startGameUpdateTimer(); // Start the timer to update player list
+    startBuzzTimer();
   }
 
   @override
@@ -159,6 +161,7 @@ class _QuestionPageState extends State<QuestionPage> {
     globalServer.dispose();
   }
   void _buzzIn() {
+    buzzTimer.cancel();
     if(globalPlayer.alreadyAnswered){
          // Provide feedback to the user (e.g., show a snackbar or dialog)
         ScaffoldMessenger.of(context).showSnackBar(
@@ -183,11 +186,21 @@ class _QuestionPageState extends State<QuestionPage> {
     });
   }
 
+  void startBuzzTimer() {
+    buzzTimer = Timer(Duration(seconds: 6), () {
+      globalPlayer.setCurrentPage = '/board';
+      globalPlayer.sendPlayerToServer(globalServer);
+      Navigator.of(context).pushNamedAndRemoveUntil("/board", (route) => false);
+      dispose();
+    });
+  }
+
   void startGameUpdateTimer() {
     gameUpdateTimer = Timer.periodic(Duration(milliseconds: 50), (timer) {
       setState(() {});
       if(globalPlayer.getCurrentPage == '/wait'){
         gameUpdateTimer.cancel();
+        buzzTimer.cancel();
         Navigator.pushNamed(context, '/wait').then(restartTimer);
       }
     });
@@ -196,6 +209,7 @@ class _QuestionPageState extends State<QuestionPage> {
   @override
   void dispose() {
     gameUpdateTimer.cancel();
+    buzzTimer.cancel();
     super.dispose();
   }
 }

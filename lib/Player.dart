@@ -20,7 +20,7 @@ class Player {
           this.answer = '', 
           this.score = 0, 
           this.buzzStatus = false,
-          this.questionSelection = 0,
+          this.questionSelection = 26,
           this.alreadyAnswered = false});
 
   set setName(String name){

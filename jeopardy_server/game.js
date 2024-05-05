@@ -84,6 +84,7 @@ class Game {
     
     handlePageChange(newPlayer){
       if(newPlayer.currentPage === '/board'){
+        this.gameBoard.markQuestionsAnswered(newPlayer.questionSelection);
         this.players.forEach(currentPlayer => {
           if(currentPlayer.id !== newPlayer.id){
             currentPlayer.currentPage = '/board';

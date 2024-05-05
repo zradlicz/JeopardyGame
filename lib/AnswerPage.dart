@@ -12,10 +12,12 @@ class AnswerPage extends StatefulWidget {
 class _AnswerPageState extends State<AnswerPage> {
   TextEditingController _answerController = TextEditingController();
   late Timer gameUpdateTimer;
+  late Timer answerTimer;
 
   @override
   void initState() {
     startGameUpdateTimer();
+    startAnswerTimer();
     super.initState();
   }
 
@@ -98,6 +100,22 @@ class _AnswerPageState extends State<AnswerPage> {
       globalPlayer.alreadyAnswered = true;
       globalPlayer.sendPlayerToServer(globalServer);
     }
+    else{
+      globalPlayer.setAnswer = 'fhdjkfs897657234g2jhw222';
+      globalPlayer.alreadyAnswered = true;
+      globalPlayer.sendPlayerToServer(globalServer);
+    }
+    _answerController.dispose();
+    Navigator.pop(context);
+    dispose();
+    
+  }
+
+  void startAnswerTimer() {
+    answerTimer = Timer(Duration(seconds: 6), () {
+      _submitAnswer();
+      answerTimer.cancel();
+      });
   }
 
   void startGameUpdateTimer() {
@@ -116,7 +134,6 @@ class _AnswerPageState extends State<AnswerPage> {
   @override
   void dispose() {
     gameUpdateTimer.cancel();
-    _answerController.dispose();
     super.dispose();
   }
 }
