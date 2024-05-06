@@ -96,19 +96,10 @@ class _AnswerPageState extends State<AnswerPage> {
   void _submitAnswer() {
     final userAnswer = _answerController.text;
     if (userAnswer.isNotEmpty) {
-      globalPlayer.setAnswer = userAnswer;
-      globalPlayer.alreadyAnswered = true;
+      globalPlayer.answer = userAnswer;
       globalPlayer.sendPlayerToServer(globalServer);
+      _answerController.dispose();
     }
-    else{
-      globalPlayer.setAnswer = 'fhdjkfs897657234g2jhw222';
-      globalPlayer.alreadyAnswered = true;
-      globalPlayer.sendPlayerToServer(globalServer);
-    }
-    _answerController.dispose();
-    Navigator.pop(context);
-    dispose();
-    
   }
 
   void startAnswerTimer() {

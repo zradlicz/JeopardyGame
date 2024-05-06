@@ -161,14 +161,18 @@ class _QuestionPageState extends State<QuestionPage> {
     globalServer.dispose();
   }
   void _buzzIn() {
-    buzzTimer.cancel();
+    
+    // if(globalPlayer.alreadyAnswered){
+    //      // Provide feedback to the user (e.g., show a snackbar or dialog)
+    //     ScaffoldMessenger.of(context).showSnackBar(
+    //     SnackBar(content: Text('You already buzzed in on this question!')),
+    //   );
+    //   return;
+    // }
     if(globalPlayer.alreadyAnswered){
-         // Provide feedback to the user (e.g., show a snackbar or dialog)
-        ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('You already buzzed in on this question!')),
-      );
       return;
     }
+    buzzTimer.cancel();
     globalPlayer.setBuzzStatus = true;
     globalPlayer.setCurrentPage = '/answer';
     globalPlayer.alreadyAnswered = true;
@@ -183,12 +187,17 @@ class _QuestionPageState extends State<QuestionPage> {
       {
         startGameUpdateTimer();
       }
+      if(!buzzTimer.isActive)
+      {
+        startBuzzTimer();
+      }
     });
   }
 
   void startBuzzTimer() {
     buzzTimer = Timer(Duration(seconds: 6), () {
       globalPlayer.setCurrentPage = '/board';
+      globalPlayer.alreadyAnswered = false;
       globalPlayer.sendPlayerToServer(globalServer);
       Navigator.of(context).pushNamedAndRemoveUntil("/board", (route) => false);
       dispose();

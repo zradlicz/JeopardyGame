@@ -88,6 +88,7 @@ class Game {
         this.players.forEach(currentPlayer => {
           if(currentPlayer.id !== newPlayer.id){
             currentPlayer.currentPage = '/board';
+            currentPlayer.alreadyAnswered = false;
           }
         })
       }else if(newPlayer.currentPage === '/question'){
@@ -95,6 +96,7 @@ class Game {
         this.players.forEach(currentPlayer => {
           if(currentPlayer.id !== newPlayer.id){
             currentPlayer.currentPage = '/question';
+            currentPlayer.questionSelection = newPlayer.questionSelection;
           }
         })
     }
@@ -133,11 +135,6 @@ class Game {
     newPlayer.buzzStatus = false;
     newPlayer.answer = '';
   }
-
-    handleSelectedQuestionChange(newPlayer){
-
-
-    }
 
     handleBuzzStatusChange(newPlayer){
       this.players.forEach(currentPlayer => {
