@@ -10,7 +10,6 @@ class WaitPage extends StatefulWidget {
 }
 
 class _WaitPageState extends State<WaitPage> {
-  TextEditingController _answerController = TextEditingController();
   late Timer gameUpdateTimer;
 
   @override
@@ -101,7 +100,6 @@ void _goHome(){
   @override
   void dispose() {
     gameUpdateTimer.cancel();
-    _answerController.dispose();
     super.dispose();
   }
 }

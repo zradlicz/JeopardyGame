@@ -10,12 +10,13 @@ class AnswerPage extends StatefulWidget {
 }
 
 class _AnswerPageState extends State<AnswerPage> {
-  TextEditingController _answerController = TextEditingController();
+  late TextEditingController _answerController;
   late Timer gameUpdateTimer;
   late Timer answerTimer;
 
   @override
   void initState() {
+     _answerController = TextEditingController();
     startGameUpdateTimer();
     startAnswerTimer();
     super.initState();
@@ -98,7 +99,6 @@ class _AnswerPageState extends State<AnswerPage> {
     if (userAnswer.isNotEmpty) {
       globalPlayer.answer = userAnswer;
       globalPlayer.sendPlayerToServer(globalServer);
-      _answerController.dispose();
     }
   }
 
@@ -116,7 +116,7 @@ class _AnswerPageState extends State<AnswerPage> {
         dispose();   
       }
       if(globalPlayer.getCurrentPage == '/question'){
-        Navigator.pop(context);
+        Navigator.of(context).pushNamedAndRemoveUntil("/question", (route) => false);
         dispose();
       }
     });
@@ -124,6 +124,8 @@ class _AnswerPageState extends State<AnswerPage> {
 
   @override
   void dispose() {
+    _answerController.dispose();
+    answerTimer.cancel();
     gameUpdateTimer.cancel();
     super.dispose();
   }

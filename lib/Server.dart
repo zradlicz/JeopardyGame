@@ -4,7 +4,7 @@ import 'main.dart';
 import 'Game.dart';
 import 'dart:convert';
 
-const DEBUG = true;
+const DEBUG = false;
 
 class Server {
   late WebSocketChannel channel;
