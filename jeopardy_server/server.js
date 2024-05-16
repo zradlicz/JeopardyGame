@@ -3,7 +3,7 @@ const Player = require('./player');
 const {Game, Board, Question} = require('./game');
 const WebSocket = require("ws");
 
-const DEBUG = false;
+const DEBUG = true;
 
 
 class JeopardyServer {
@@ -12,19 +12,6 @@ class JeopardyServer {
     this.wss = new WebSocket.Server({ port: 5000 });
     if(DEBUG){console.log("Jeopardy Server Instantiated.")};
   }
-
-  async generateQuestions(){
-    while(this.jeopardyGame.gameBoard.questions.length < 25){
-      const chatCompletion = await main();
-        try {
-            const question = JSON.parse(chatCompletion.choices[0].message.content);
-            console.log("Generated question:", question);
-            this.jeopardyGame.gameBoard.addQuestion(question);
-        } catch (error) {
-            console.error("Error generating question:", error);
-        }
-  }
-}
 
   //method to handle player connecting to server
   handlePlayerConnection(ws){
@@ -102,7 +89,7 @@ class JeopardyServer {
 
 let js = new JeopardyServer();
 
-js.generateQuestions();
+js.jeopardyGame.gameBoard.generateQuestions();
 
 js.wss.on("connection", ws => {
   js.handlePlayerConnection(ws);
@@ -115,3 +102,14 @@ js.wss.on("connection", ws => {
       js.handlePlayerDisconnection(ws)
     })
   });
+
+
+  
+  let flag = true; 
+  
+  setTimeout(() => {
+    if(flag){
+      js.jeopardyGame.nextBoard.generateQuestions();
+      flag = false;
+    }
+  }, 100000); // Refill questions every 1 minute (adjust as needed)

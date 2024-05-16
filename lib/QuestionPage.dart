@@ -108,7 +108,7 @@ class _QuestionPageState extends State<QuestionPage> {
   }
 
   void startBuzzTimer() {
-    buzzTimer = Timer(Duration(seconds: 6), () {
+    buzzTimer = Timer(Duration(seconds: 1), () {
       globalPlayer.setCurrentPage = '/board';
       globalPlayer.alreadyAnswered = false;
       globalPlayer.sendPlayerToServer(globalServer);

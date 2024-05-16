@@ -7,6 +7,7 @@ class Game {
     constructor() {
       this.players = [];
       this.gameBoard = new Board();
+      this.nextBoard = new Board();
       this.currentQuestion = new Question();
     }
     
@@ -44,6 +45,7 @@ class Game {
       return {
         players: this.players.map(player => player.toJSON()),
         gameBoard: this.gameBoard,
+        nextBoard: this.nextBoard,
         currentQuestion: this.currentQuestion
       };
     }
@@ -85,6 +87,11 @@ class Game {
     handlePageChange(newPlayer){
       if(newPlayer.currentPage === '/board'){
         this.gameBoard.markQuestionsAnswered(newPlayer.questionSelection);
+        if(this.gameBoard.allQuestionsAnswered()){
+          this.gameBoard.copyQuestionsFromBoard(this.nextBoard);
+          this.nextBoard.clearBoard();
+          this.nextBoard.generateQuestions();
+        }
         this.players.forEach(currentPlayer => {
           if(currentPlayer.id !== newPlayer.id){
             currentPlayer.currentPage = '/board';
@@ -113,7 +120,11 @@ class Game {
         newPlayer.score+=2;
         newPlayer.alreadyAnswered = false;
         this.gameBoard.markQuestionsAnswered(newPlayer.questionSelection);
-        newPlayer.currentPage = '/board';
+        if(this.gameBoard.allQuestionsAnswered()){
+          this.gameBoard.copyQuestionsFromBoard(this.nextBoard);
+          this.nextBoard.clearBoard();
+          this.nextBoard.generateQuestions();
+        }
       }else if(score === 1){
         this.players.forEach(currentPlayer => {
           currentPlayer.currentPage = "/board"
@@ -123,6 +134,11 @@ class Game {
         newPlayer.score+=1;
         newPlayer.alreadyAnswered = false;
         this.gameBoard.markQuestionsAnswered(newPlayer.questionSelection);
+        if(this.gameBoard.allQuestionsAnswered()){
+          this.gameBoard.copyQuestionsFromBoard(this.nextBoard);
+          this.nextBoard.clearBoard();
+          this.nextBoard.generateQuestions();
+        }
         newPlayer.currentPage = '/board';
       }else{
         this.players.forEach(currentPlayer => {
@@ -154,9 +170,11 @@ class Game {
     constructor() {
       this.questions = [];
       this.questionsAnswered = [];
+      this.empty = true;
     }
 
     addQuestion(question){
+      this.empty = false;
       this.questions.push(question);
       this.questionsAnswered.push(false);
       if(DEBUG){console.log("Added question to board")};
@@ -165,6 +183,45 @@ class Game {
     markQuestionsAnswered(index){
       this.questionsAnswered[index] = true;
       if(DEBUG){console.log("Marked question as answered.")};
+    }
+
+    copyQuestionsFromBoard(board){
+      this.questions = board.questions;
+      this.questionsAnswered = board.questionsAnswered;
+      this.empty = board.empty;
+      if(DEBUG){console.log("Copied questions from board.")};
+    }
+
+    allQuestionsAnswered(){
+      if(this.questionsAnswered.length < 25){
+        return false;
+      }
+      return this.questionsAnswered.every(answered => answered);
+    }
+
+    clearBoard(){
+      this.empty = true;
+      this.questions = [];
+      this.questionsAnswered = [];
+      if(DEBUG){console.log("Cleared board.")};
+    }
+
+      async generateQuestions(){
+        while(this.questions.length < 25){
+          const chatCompletion = await main();
+            try {
+                const question = JSON.parse(chatCompletion.choices[0].message.content);
+                console.log("Generated question:", question);
+                this.addQuestion(question);
+            } catch (error) {
+                console.error("Error generating question:", error);
+            }
+      }
+    }
+
+    resetGameBoard(newBoard){
+      this.jeopardyGame.gameBoard = newBoard;
+      this.sendGameToClients();
     }
   }
 

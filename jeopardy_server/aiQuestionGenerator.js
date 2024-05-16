@@ -26,7 +26,7 @@ async function main() {
 
       // Optional parameters
       temperature: 1,
-      max_tokens: 1024,
+      max_tokens: 100,
       top_p: 1,
       stop: null,
       stream: false,

@@ -3,6 +3,7 @@ import 'Player.dart';
 class Game {
   List<Player> players = [];
   late Board gameBoard;
+  late Board nextBoard;
   late Question currentQuestion;
 
   //return a list of all the names of the players in the game
@@ -47,6 +48,7 @@ class Game {
     List<dynamic> playersJson = json['players'];
     game.players = playersJson.map((playerJson) => Player.fromJSON(playerJson)).toList();
     game.gameBoard = Board.fromJSON(json['gameBoard']);
+    game.nextBoard = Board.fromJSON(json['nextBoard']);
     game.currentQuestion = Question.fromJSON(json['currentQuestion']);
     return game;
   }

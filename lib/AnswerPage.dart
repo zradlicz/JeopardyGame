@@ -104,7 +104,7 @@ class _AnswerPageState extends State<AnswerPage> {
 
   void startAnswerTimer() {
     answerTimer = Timer(Duration(seconds: 6), () {
-      _submitAnswer();
+      //_submitAnswer();
       answerTimer.cancel();
       });
   }
