@@ -216,7 +216,7 @@ void _openQuestionMenu() {
     context: context,
     builder: (BuildContext context) {
       return Container(
-        color: Colors.blueGrey[600],
+        color: Colors.blueGrey[600], // Match the background color of the drawer
         child: ListView(
           children: globalGame.gameBoard.questions.asMap().entries.map((entry) {
             int index = entry.key;
@@ -225,14 +225,20 @@ void _openQuestionMenu() {
 
             // Display the question and answer only if corresponding index in questionsAnswered is true
             if (questionAnswered) {
-              return ListTile(
-                title: Row(
+              return Container(
+                margin: EdgeInsets.symmetric(vertical: 5),
+                decoration: BoxDecoration(
+                  color: Colors.blue[200], // Light blue color
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                padding: EdgeInsets.all(10),
+                child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Expanded(
                       child: Text(
                         question.question,
-                        style: TextStyle(color: Colors.white),
+                        style: TextStyle(color: Colors.black),
                       ),
                     ),
                     SizedBox(width: 10),
@@ -240,17 +246,13 @@ void _openQuestionMenu() {
                       child: Text(
                         question.answer,
                         style: TextStyle(
-                          color: Colors.white,
+                          color: Colors.black,
                           fontWeight: FontWeight.bold,
                         ),
                       ),
                     ),
                   ],
                 ),
-                onTap: () {
-                  // Handle question tap if necessary
-                  Navigator.pop(context); // Close the menu
-                },
               );
             } else {
               return Container(); // Return an empty container if question is not answered
