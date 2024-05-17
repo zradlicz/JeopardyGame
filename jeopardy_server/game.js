@@ -125,6 +125,7 @@ class Game {
           this.nextBoard.clearBoard();
           this.nextBoard.generateQuestions();
         }
+        newPlayer.currentPage = '/board';
       }else if(score === 1){
         this.players.forEach(currentPlayer => {
           currentPlayer.currentPage = "/board"

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'main.dart';
 import 'dart:async'; // Import dart:async for Timer
+import 'Game.dart';
 
 class BoardPage extends StatefulWidget {
   const BoardPage({Key? key}) : super(key: key);
@@ -30,6 +31,14 @@ class _BoardPageState extends State<BoardPage> {
             _goHome();
           },
         ),
+        actions: [
+          IconButton(
+            icon: Icon(Icons.menu),
+            onPressed: () {
+              _openQuestionMenu();
+            },
+          ),
+        ],
       ),
       body: Stack(
         children: [
@@ -65,9 +74,8 @@ class _BoardPageState extends State<BoardPage> {
                           int pointValue = (index ~/ 5 + 1) * 100; // Calculate point value dynamically
                           return ElevatedButton(
                             onPressed: questionAnswered ? null : () => _questionSelected(index),
-                            //onPressed: () {_questionSelected(index);},
                             style: ButtonStyle(
-                              backgroundColor: MaterialStateProperty.all<Color>(questionAnswered ? Colors.grey:Colors.blue),
+                              backgroundColor: MaterialStateProperty.all<Color>(questionAnswered ? Colors.grey : Colors.blue),
                               padding: MaterialStateProperty.all<EdgeInsetsGeometry>(
                                 EdgeInsets.all(16), // Adjust padding as needed
                               ),
@@ -185,10 +193,9 @@ class _BoardPageState extends State<BoardPage> {
     Navigator.pushNamed(context, globalPlayer.getCurrentPage).then(restartTimer);
   }
 
-  FutureOr restartTimer(dynamic value){
-    setState((){
-      if(!gameUpdateTimer.isActive)
-      {
+  FutureOr restartTimer(dynamic value) {
+    setState(() {
+      if (!gameUpdateTimer.isActive) {
         startGameUpdateTimer();
       }
     });
@@ -203,6 +210,57 @@ class _BoardPageState extends State<BoardPage> {
       }
     });
   }
+
+void _openQuestionMenu() {
+  showModalBottomSheet(
+    context: context,
+    builder: (BuildContext context) {
+      return Container(
+        color: Colors.blueGrey[600],
+        child: ListView(
+          children: globalGame.gameBoard.questions.asMap().entries.map((entry) {
+            int index = entry.key;
+            Question question = entry.value;
+            bool questionAnswered = globalGame.gameBoard.questionsAnswered[index];
+
+            // Display the question and answer only if corresponding index in questionsAnswered is true
+            if (questionAnswered) {
+              return ListTile(
+                title: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Expanded(
+                      child: Text(
+                        question.question,
+                        style: TextStyle(color: Colors.white),
+                      ),
+                    ),
+                    SizedBox(width: 10),
+                    Expanded(
+                      child: Text(
+                        question.answer,
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                onTap: () {
+                  // Handle question tap if necessary
+                  Navigator.pop(context); // Close the menu
+                },
+              );
+            } else {
+              return Container(); // Return an empty container if question is not answered
+            }
+          }).toList(),
+        ),
+      );
+    },
+  );
+}
 
   @override
   void dispose() {
